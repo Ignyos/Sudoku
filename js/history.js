@@ -76,9 +76,9 @@ const History = {
         // Filter puzzles
         let puzzles = allPuzzles;
         if (this.currentFilter === 'in-progress') {
-            puzzles = allPuzzles.filter(p => !p.completed);
+            puzzles = allPuzzles.filter(p => !p.isCompleted);
         } else if (this.currentFilter === 'completed') {
-            puzzles = allPuzzles.filter(p => p.completed);
+            puzzles = allPuzzles.filter(p => p.isCompleted);
         }
         
         if (puzzles.length === 0) {
@@ -116,20 +116,21 @@ const History = {
         const date = new Date(puzzle.dateCreated || puzzle.dateModified);
         const startedDate = this.formatDate(date);
         const difficulty = puzzle.difficulty || 'Manual Entry';
-        const status = puzzle.completed ? 'Completed' : 'In Progress';
-        const statusClass = puzzle.completed ? 'completed' : 'in-progress';
+        const status = puzzle.isCompleted ? 'Completed' : 'In Progress';
+        const statusClass = puzzle.isCompleted ? 'completed' : 'in-progress';
         
-        // Count filled cells
-        const filledCells = puzzle.currentGrid.filter(c => c !== 0).length;
-        const progress = `${filledCells}/81 cells`;
+        // Add solved method indicator for completed puzzles
+        let solvedMethod = '';
+        if (puzzle.isCompleted && puzzle.solvedBy) {
+            solvedMethod = puzzle.solvedBy === 'manual' ? ' ✓' : ' ⚡';
+        }
         
         return `
             <div class="history-item" data-puzzle-id="${puzzle.id}">
                 <div class="history-item-info">
                     <div class="history-item-title">${difficulty}</div>
                     <div class="history-item-meta">
-                        <span class="history-status ${statusClass}">${status}</span> • 
-                        ${progress} • 
+                        <span class="history-status ${statusClass}">${status}${solvedMethod}</span> 
                         ${startedDate}
                     </div>
                 </div>

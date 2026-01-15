@@ -84,10 +84,6 @@
         min-width: 45px;
     }
 
-    .grid-container {
-        padding: 0.5rem;
-    }
-
     .cell {
         font-size: clamp(1rem, 5vw, 1.5rem);
     }

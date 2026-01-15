@@ -7,6 +7,7 @@ const Play = {
     currentPuzzleId: null,
     isEntryLocked: false, // Track if entry mode puzzle is locked
     isHintMode: false, // Track if in hint selection mode
+    isPuzzleCompleted: false, // Track if current puzzle is completed
 
     /**
      * Initialize the play page
@@ -113,6 +114,9 @@ const Play = {
      * Load existing puzzle
      */
     async loadExistingPuzzle(puzzle) {
+        // Track completion status
+        this.isPuzzleCompleted = puzzle.isCompleted || false;
+        
         // Set game mode display
         const mode = puzzle.difficulty ? 'Playing' : 'Entry Mode';
         document.getElementById('gameMode').textContent = mode;
@@ -140,7 +144,7 @@ const Play = {
         // Show appropriate message
         if (this.currentMode === 'new') {
             Utils.showMessage(`New ${puzzle.difficulty} puzzle loaded!`, 'success', 3000);
-        } else {
+        } else if (!puzzle.isCompleted) {
             Utils.showMessage('Puzzle resumed', 'success', 2000);
         }
         
@@ -153,9 +157,9 @@ const Play = {
      */
     setupControls() {
         // Done Editing button
-        const doneEditingBtn = document.getElementById('doneEditingBtn');
-        if (doneEditingBtn) {
-            doneEditingBtn.addEventListener('click', () => this.showFinalizeModal());
+        const doneEnteringBtn = document.getElementById('doneEnteringBtn');
+        if (doneEnteringBtn) {
+            doneEnteringBtn.addEventListener('click', () => this.showFinalizeModal());
         }
 
         // Clear Grid button
@@ -188,7 +192,19 @@ const Play = {
             confirmEditBtn.addEventListener('click', () => this.confirmUnlockPuzzle());
         }
 
-        // Action buttons (will be implemented next)
+        // Solve Puzzle modal buttons
+        const cancelSolveBtn = document.getElementById('cancelSolveBtn');
+        const confirmSolveBtn = document.getElementById('confirmSolveBtn');
+        
+        if (cancelSolveBtn) {
+            cancelSolveBtn.addEventListener('click', () => this.closeSolveModal());
+        }
+        
+        if (confirmSolveBtn) {
+            confirmSolveBtn.addEventListener('click', () => this.confirmSolvePuzzle());
+        }
+
+        // Action buttons
         const getHintBtn = document.getElementById('getHintBtn');
         const solvePuzzleBtn = document.getElementById('solvePuzzleBtn');
         const editPuzzleBtn = document.getElementById('editPuzzleBtn');
@@ -212,14 +228,14 @@ const Play = {
     updateControlsDisplay() {
         const inputBtn = document.getElementById('inputModeBtn');
         const notesBtn = document.getElementById('notesModeBtn');
-        const doneEditingBtn = document.getElementById('doneEditingBtn');
+        const doneEnteringBtn = document.getElementById('doneEnteringBtn');
         const clearGridBtn = document.getElementById('clearGridBtn');
         const getHintBtn = document.getElementById('getHintBtn');
         const solvePuzzleBtn = document.getElementById('solvePuzzleBtn');
         const editPuzzleBtn = document.getElementById('editPuzzleBtn');
 
         // Hide all buttons first
-        doneEditingBtn.style.display = 'none';
+        doneEnteringBtn.style.display = 'none';
         clearGridBtn.style.display = 'none';
         getHintBtn.style.display = 'none';
         solvePuzzleBtn.style.display = 'none';
@@ -229,22 +245,27 @@ const Play = {
             // Entry mode - unlocked
             inputBtn.disabled = true;
             notesBtn.disabled = true;
-            doneEditingBtn.style.display = 'inline-block';
+            doneEnteringBtn.style.display = 'inline-block';
             clearGridBtn.style.display = 'inline-block';
         } else if (this.currentMode === 'entry' && this.isEntryLocked) {
             // Entry mode - locked (now playing)
-            inputBtn.disabled = false;
-            notesBtn.disabled = false;
+            inputBtn.disabled = this.isPuzzleCompleted;
+            notesBtn.disabled = this.isPuzzleCompleted;
             getHintBtn.style.display = 'inline-block';
+            getHintBtn.disabled = this.isPuzzleCompleted;
             solvePuzzleBtn.style.display = 'inline-block';
+            solvePuzzleBtn.disabled = this.isPuzzleCompleted;
             editPuzzleBtn.style.display = 'inline-block';
+            editPuzzleBtn.disabled = this.isPuzzleCompleted;
             this.updateHintButtonLabel();
         } else {
             // Playing mode (new or continue)
-            inputBtn.disabled = false;
-            notesBtn.disabled = false;
+            inputBtn.disabled = this.isPuzzleCompleted;
+            notesBtn.disabled = this.isPuzzleCompleted;
             getHintBtn.style.display = 'inline-block';
+            getHintBtn.disabled = this.isPuzzleCompleted;
             solvePuzzleBtn.style.display = 'inline-block';
+            solvePuzzleBtn.disabled = this.isPuzzleCompleted;
             this.updateHintButtonLabel();
         }
     },
@@ -528,14 +549,144 @@ const Play = {
         this.exitHintMode();
         
         Utils.showMessage('Hint placed!', 'success', 2000);
+        
+        // Check if puzzle is now complete
+        this.checkPuzzleCompletion();
     },
 
     /**
-     * Solve the entire puzzle
+     * Show solve puzzle confirmation modal
      */
     solvePuzzle() {
-        Utils.showMessage('Solve Puzzle feature coming soon!', 'info', 2000);
-        // TODO: Implement solve logic
+        const modal = document.getElementById('solvePuzzleModal');
+        modal.style.display = 'flex';
+    },
+
+    /**
+     * Close solve puzzle modal
+     */
+    closeSolveModal() {
+        const modal = document.getElementById('solvePuzzleModal');
+        modal.style.display = 'none';
+    },
+
+    /**
+     * Confirm and execute puzzle solve with animation
+     */
+    async confirmSolvePuzzle() {
+        this.closeSolveModal();
+        
+        // Exit hint mode if active
+        if (this.isHintMode) {
+            this.exitHintMode();
+        }
+        
+        // Get the original puzzle and solve it
+        const puzzleGrid = Grid.getOriginalGrid();
+        const gridCopy = puzzleGrid.map(row => [...row]);
+        const solved = Solver.solve(gridCopy);
+        
+        if (!solved) {
+            Utils.showMessage('Cannot solve this puzzle', 'error', 2000);
+            return;
+        }
+        
+        // Collect all empty cells
+        const emptyCells = [];
+        for (let row = 0; row < 9; row++) {
+            for (let col = 0; col < 9; col++) {
+                if (Grid.currentGrid[row][col] === 0) {
+                    emptyCells.push({ row, col, value: gridCopy[row][col] });
+                }
+            }
+        }
+        
+        if (emptyCells.length === 0) {
+            Utils.showMessage('Puzzle is already complete!', 'info', 2000);
+            return;
+        }
+        
+        // Randomize the order of cell reveals (Fisher-Yates shuffle)
+        for (let i = emptyCells.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [emptyCells[i], emptyCells[j]] = [emptyCells[j], emptyCells[i]];
+        }
+        
+        // Disable buttons during animation
+        this.disableButtons(true);
+        
+        // Show solving message
+        Utils.showMessage(`Solving ${emptyCells.length} cells...`, 'info', 0);
+        
+        // Animate filling cells one by one
+        for (let i = 0; i < emptyCells.length; i++) {
+            const cell = emptyCells[i];
+            
+            // Fill the cell
+            Grid.setCellValue(cell.row, cell.col, cell.value);
+            
+            // Wait 200ms before next cell
+            await new Promise(resolve => setTimeout(resolve, 200));
+        }
+        
+        // Re-enable buttons
+        this.disableButtons(false);
+        
+        // Show completion message
+        Utils.showMessage('Puzzle solved!', 'success', 3000);
+        
+        // Mark puzzle as completed
+        if (this.currentPuzzleId) {
+            console.log('Marking puzzle as completed:', this.currentPuzzleId);
+            await Storage.updatePuzzle(this.currentPuzzleId, {
+                isCompleted: true,
+                completedDate: new Date().toISOString(),
+                solvedBy: 'auto-solve'
+            });
+            console.log('Puzzle marked as completed');
+        } else {
+            console.log('No currentPuzzleId to mark as completed');
+        }
+    },
+    
+    /**
+     * Disable/enable action buttons
+     */
+    disableButtons(disabled) {
+        const buttons = ['getHintBtn', 'solvePuzzleBtn', 'editPuzzleBtn'];
+        buttons.forEach(id => {
+            const btn = document.getElementById(id);
+            if (btn) btn.disabled = disabled;
+        });
+    },
+
+    /**
+     * Check if puzzle is complete and mark as completed
+     */
+    async checkPuzzleCompletion() {
+        // Check if all cells are filled
+        const isFilled = Grid.currentGrid.every(row => row.every(cell => cell !== 0));
+        
+        if (!isFilled) return;
+        
+        // Check if solution is valid
+        const invalidCells = Validator.validateGrid(Grid.currentGrid);
+        
+        if (invalidCells.length > 0) return; // Has errors
+        
+        // Puzzle is complete and valid!
+        if (this.currentPuzzleId) {
+            const puzzle = await Storage.getPuzzle(this.currentPuzzleId);
+            if (puzzle && !puzzle.isCompleted) {
+                await Storage.updatePuzzle(this.currentPuzzleId, {
+                    isCompleted: true,
+                    completedDate: new Date().toISOString(),
+                    solvedBy: 'manual'
+                });
+                
+                Utils.showMessage('Congratulations! Puzzle completed!', 'success', 3000);
+            }
+        }
     },
 
     /**

@@ -257,6 +257,11 @@ const Grid = {
             this.clearCellNotes(Utils.getIndex(row, col));
         }
         this.draw();
+        
+        // Notify Play module to check completion if it exists
+        if (typeof Play !== 'undefined' && Play.checkPuzzleCompletion) {
+            Play.checkPuzzleCompletion();
+        }
     },
 
     /**

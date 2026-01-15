@@ -45,7 +45,7 @@
 
                 <div class="controls-bottom" id="controlsBottom">
                     <!-- Entry Mode Buttons -->
-                    <button id="doneEditingBtn" class="action-btn primary-btn" style="display: none;">Done Editing</button>
+                    <button id="doneEnteringBtn" class="action-btn primary-btn" style="display: none;">Done Entering</button>
                     <button id="clearGridBtn" class="action-btn secondary-btn" style="display: none;">Clear</button>
                     
                     <!-- Playing Mode Buttons -->
@@ -85,6 +85,19 @@
             <div class="modal-actions">
                 <button id="cancelEditBtn" class="modal-btn secondary">Cancel</button>
                 <button id="confirmEditBtn" class="modal-btn primary">Unlock Puzzle</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Solve Puzzle Confirmation Modal -->
+    <div id="solvePuzzleModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <h2>Solve Puzzle?</h2>
+            <p>This will automatically fill in all remaining cells with the correct solution. This action cannot be undone.</p>
+            
+            <div class="modal-actions">
+                <button id="cancelSolveBtn" class="modal-btn secondary">Cancel</button>
+                <button id="confirmSolveBtn" class="modal-btn primary">Solve</button>
             </div>
         </div>
     </div>

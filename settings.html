@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Sudoku - Settings & Preferences">
+    <title>Settings - Sudoku</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+    <div class="container">
+        <main>
+            <div class="settings-page">
+                <!-- Header Bar -->
+                <div class="page-header">
+                    <div class="page-info">
+                        <h2>Settings</h2>
+                    </div>
+                    <a href="index.html" class="menu-btn">Menu</a>
+                </div>
+
+                <!-- Settings Content -->
+                <div class="settings-content">
+                    <div class="settings-section">
+                        <h3>Gameplay</h3>
+                        
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <div class="setting-label">Show Timer</div>
+                                <div class="setting-description">Display a timer while solving puzzles</div>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="showTimer" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <div class="setting-label">Auto-Check Errors</div>
+                                <div class="setting-description">Automatically highlight conflicting numbers in red</div>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="autoCheckErrors" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <div class="setting-label">Highlight Related Cells</div>
+                                <div class="setting-description">Highlight row, column, and box when a cell is selected</div>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="highlightRelated" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="settings-section">
+                        <h3>Data</h3>
+                        
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <div class="setting-label">Clear All Data</div>
+                                <div class="setting-description">Delete all puzzles and progress (cannot be undone)</div>
+                            </div>
+                            <button id="clearDataBtn" class="action-btn secondary-btn">Clear Data</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Clear Data Confirmation Modal -->
+    <div id="clearDataModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <h2>Clear All Data?</h2>
+            <p>This will delete all your saved puzzles and progress. This action cannot be undone.</p>
+            <p><strong>Are you sure you want to continue?</strong></p>
+            
+            <div class="modal-actions">
+                <button id="cancelClearBtn" class="modal-btn secondary">Cancel</button>
+                <button id="confirmClearBtn" class="modal-btn primary">Clear All Data</button>
+            </div>
+        </div>
+    </div>
+
+    <footer class="site-footer">
+        <p class="footer-content">&copy; 2026 <a href="https://ignyos.com" target="_blank">Ignyos</a> | <a href="https://github.com/Ignyos/Sudoku" target="_blank">GitHub</a></p>
+    </footer>
+
+    <script src="js/utils.js"></script>
+    <script src="js/storage.js"></script>
+    <script src="js/settings.js"></script>
+</body>
+</html>

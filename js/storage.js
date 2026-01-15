@@ -235,5 +235,25 @@ const Storage = {
         Object.assign(puzzle, updates);
 
         await this.savePuzzle(puzzle);
+    },
+
+    /**
+     * Delete a puzzle
+     */
+    async deletePuzzle(id) {
+        const tx = this.db.transaction('puzzles', 'readwrite');
+        const store = tx.objectStore('puzzles');
+        await store.delete(id);
+        await tx.complete;
+    },
+
+    /**
+     * Clear all puzzles
+     */
+    async clearAll() {
+        const tx = this.db.transaction('puzzles', 'readwrite');
+        const store = tx.objectStore('puzzles');
+        await store.clear();
+        await tx.complete;
     }
 };

@@ -17,8 +17,12 @@
                     <div class="game-info">
                         <span class="game-mode" id="gameMode"></span>
                         <span class="difficulty-badge" id="difficultyBadge" style="display: none;"></span>
+                        <span class="timer" id="timer" style="display: none;">00:00</span>
                     </div>
-                    <a href="index.html" class="menu-btn">Menu</a>
+                    <div class="header-actions">
+                        <button id="helpBtn" class="icon-btn" title="Keyboard Shortcuts (?)">?</button>
+                        <a href="index.html" class="menu-btn">Menu</a>
+                    </div>
                 </div>
 
                 <div class="controls-top">
@@ -26,6 +30,12 @@
                         <div class="mode-toggle">
                             <button id="inputModeBtn" class="mode-btn active" title="Input numbers">Input</button>
                             <button id="notesModeBtn" class="mode-btn" title="Add pencil marks">Notes</button>
+                        </div>
+                        
+                        <div class="action-controls">
+                            <button id="undoBtn" class="action-btn-small" title="Undo (Ctrl+Z)" disabled>⟲</button>
+                            <button id="redoBtn" class="action-btn-small" title="Redo (Ctrl+Y)" disabled>⟳</button>
+                            <button id="clearCellBtn" class="action-btn-small" title="Clear cell (Delete)">✕</button>
                         </div>
                     </div>
                     
@@ -98,6 +108,59 @@
             <div class="modal-actions">
                 <button id="cancelSolveBtn" class="modal-btn secondary">Cancel</button>
                 <button id="confirmSolveBtn" class="modal-btn primary">Solve</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Keyboard Shortcuts Help Modal -->
+    <div id="helpModal" class="modal" style="display: none;">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h2>Keyboard Shortcuts</h2>
+                <button class="modal-close" id="closeHelpBtn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="shortcuts-grid">
+                    <div class="shortcut-section">
+                        <h3>Input</h3>
+                        <div class="shortcut-item">
+                            <kbd>1</kbd> - <kbd>9</kbd>
+                            <span>Enter number or toggle note</span>
+                        </div>
+                        <div class="shortcut-item">
+                            <kbd>Delete</kbd> / <kbd>Backspace</kbd>
+                            <span>Clear cell</span>
+                        </div>
+                    </div>
+
+                    <div class="shortcut-section">
+                        <h3>Navigation</h3>
+                        <div class="shortcut-item">
+                            <kbd>←</kbd> <kbd>→</kbd> <kbd>↑</kbd> <kbd>↓</kbd>
+                            <span>Move selection</span>
+                        </div>
+                        <div class="shortcut-item">
+                            <kbd>Tab</kbd>
+                            <span>Move to next cell</span>
+                        </div>
+                    </div>
+
+                    <div class="shortcut-section">
+                        <h3>Actions</h3>
+                        <div class="shortcut-item">
+                            <kbd>Ctrl</kbd> + <kbd>Z</kbd>
+                            <span>Undo</span>
+                        </div>
+                        <div class="shortcut-item">
+                            <kbd>Ctrl</kbd> + <kbd>Y</kbd>
+                            <span>Redo</span>
+                        </div>
+                        <div class="shortcut-item">
+                            <kbd>?</kbd>
+                            <span>Show this help</span>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Sudoku - Statistics & Progress">
+    <title>Statistics - Sudoku</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+    <div class="container">
+        <main>
+            <div class="stats-page">
+                <!-- Header Bar -->
+                <div class="page-header">
+                    <div class="page-info">
+                        <h2>Statistics</h2>
+                    </div>
+                    <a href="index.html" class="menu-btn">Menu</a>
+                </div>
+
+                <!-- Stats Content -->
+                <div class="stats-content">
+                    <!-- Overall Stats -->
+                    <div class="stats-section">
+                        <h3>Overall Statistics</h3>
+                        <div class="stats-grid">
+                            <div class="stat-card">
+                                <div class="stat-value" id="totalPuzzles">0</div>
+                                <div class="stat-label">Total Puzzles</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value" id="completedPuzzles">0</div>
+                                <div class="stat-label">Completed</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value" id="completionRate">0%</div>
+                                <div class="stat-label">Completion Rate</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value" id="averageTime">--:--</div>
+                                <div class="stat-label">Avg. Solve Time</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- By Difficulty -->
+                    <div class="stats-section">
+                        <h3>By Difficulty</h3>
+                        <div class="difficulty-stats" id="difficultyStats">
+                            <!-- Populated by JavaScript -->
+                        </div>
+                    </div>
+
+                    <!-- Solve Method -->
+                    <div class="stats-section">
+                        <h3>Completion Method</h3>
+                        <div class="stats-grid">
+                            <div class="stat-card">
+                                <div class="stat-value" id="manualSolves">0</div>
+                                <div class="stat-label">✓ Manual Solves</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value" id="autoSolves">0</div>
+                                <div class="stat-label">⚡ Auto-Solves</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <footer class="site-footer">
+        <p class="footer-content">&copy; 2026 <a href="https://ignyos.com" target="_blank">Ignyos</a> | <a href="https://github.com/Ignyos/Sudoku" target="_blank">GitHub</a></p>
+    </footer>
+
+    <script src="js/utils.js"></script>
+    <script src="js/storage.js"></script>
+    <script src="js/stats.js"></script>
+</body>
+</html>

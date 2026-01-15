@@ -8,6 +8,11 @@ const Play = {
     isEntryLocked: false, // Track if entry mode puzzle is locked
     isHintMode: false, // Track if in hint selection mode
     isPuzzleCompleted: false, // Track if current puzzle is completed
+    
+    // Timer properties
+    startTime: null,
+    elapsedTime: 0, // in seconds
+    timerInterval: null,
 
     /**
      * Initialize the play page
@@ -141,6 +146,12 @@ const Play = {
             isEntry: !puzzle.difficulty
         });
         
+        // Start timer if puzzle is not completed and we're playing
+        if (!this.isPuzzleCompleted && puzzle.difficulty) {
+            const savedTime = puzzle.timeElapsed || 0;
+            this.startTimer(savedTime);
+        }
+        
         // Show appropriate message
         if (this.currentMode === 'new') {
             Utils.showMessage(`New ${puzzle.difficulty} puzzle loaded!`, 'success', 3000);
@@ -220,6 +231,26 @@ const Play = {
         if (editPuzzleBtn) {
             editPuzzleBtn.addEventListener('click', () => this.unlockPuzzle());
         }
+        
+        // Help button and modal
+        const helpBtn = document.getElementById('helpBtn');
+        const closeHelpBtn = document.getElementById('closeHelpBtn');
+        
+        if (helpBtn) {
+            helpBtn.addEventListener('click', () => this.showHelpModal());
+        }
+        
+        if (closeHelpBtn) {
+            closeHelpBtn.addEventListener('click', () => this.closeHelpModal());
+        }
+        
+        // Global keyboard listener for help modal
+        document.addEventListener('keydown', (e) => {
+            if (e.key === '?' && !e.ctrlKey && !e.metaKey) {
+                e.preventDefault();
+                this.showHelpModal();
+            }
+        });
     },
 
     /**
@@ -632,6 +663,9 @@ const Play = {
         // Re-enable buttons
         this.disableButtons(false);
         
+        // Stop timer
+        this.stopTimer();
+        
         // Show completion message
         Utils.showMessage('Puzzle solved!', 'success', 3000);
         
@@ -641,9 +675,12 @@ const Play = {
             await Storage.updatePuzzle(this.currentPuzzleId, {
                 isCompleted: true,
                 completedDate: new Date().toISOString(),
-                solvedBy: 'auto-solve'
+                solvedBy: 'auto-solve',
+                timeElapsed: this.elapsedTime
             });
             console.log('Puzzle marked as completed');
+            this.isPuzzleCompleted = true;
+            this.updateControlsDisplay();
         } else {
             console.log('No currentPuzzleId to mark as completed');
         }
@@ -678,11 +715,18 @@ const Play = {
         if (this.currentPuzzleId) {
             const puzzle = await Storage.getPuzzle(this.currentPuzzleId);
             if (puzzle && !puzzle.isCompleted) {
+                // Stop timer
+                this.stopTimer();
+                
                 await Storage.updatePuzzle(this.currentPuzzleId, {
                     isCompleted: true,
                     completedDate: new Date().toISOString(),
-                    solvedBy: 'manual'
+                    solvedBy: 'manual',
+                    timeElapsed: this.elapsedTime
                 });
+                
+                this.isPuzzleCompleted = true;
+                this.updateControlsDisplay();
                 
                 Utils.showMessage('Congratulations! Puzzle completed!', 'success', 3000);
             }
@@ -750,6 +794,88 @@ const Play = {
         this.updateControlsDisplay();
         this.closeEditModal();
         Utils.showMessage('Puzzle unlocked for editing', 'info', 2000);
+    },
+
+    /**
+     * Start the timer
+     */
+    startTimer(savedElapsed = 0) {
+        const prefs = this.getPreferences();
+        if (!prefs.showTimer) return;
+        
+        this.elapsedTime = savedElapsed;
+        this.startTime = Date.now() - (savedElapsed * 1000);
+        
+        // Show timer element
+        const timerEl = document.getElementById('timer');
+        if (timerEl) {
+            timerEl.style.display = 'inline-block';
+            this.updateTimerDisplay();
+        }
+        
+        // Update every second
+        this.timerInterval = setInterval(() => {
+            this.elapsedTime = Math.floor((Date.now() - this.startTime) / 1000);
+            this.updateTimerDisplay();
+        }, 1000);
+    },
+
+    /**
+     * Stop the timer
+     */
+    stopTimer() {
+        if (this.timerInterval) {
+            clearInterval(this.timerInterval);
+            this.timerInterval = null;
+        }
+    },
+
+    /**
+     * Update timer display
+     */
+    updateTimerDisplay() {
+        const timerEl = document.getElementById('timer');
+        if (!timerEl) return;
+        
+        const minutes = Math.floor(this.elapsedTime / 60);
+        const seconds = this.elapsedTime % 60;
+        timerEl.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+    },
+
+    /**
+     * Get preferences helper
+     */
+    getPreferences() {
+        const stored = localStorage.getItem('sudoku-preferences');
+        const defaults = { showTimer: true, autoCheckErrors: true, highlightRelated: true };
+        if (stored) {
+            try {
+                return { ...defaults, ...JSON.parse(stored) };
+            } catch (e) {
+                return defaults;
+            }
+        }
+        return defaults;
+    },
+
+    /**
+     * Show help modal
+     */
+    showHelpModal() {
+        const modal = document.getElementById('helpModal');
+        if (modal) {
+            modal.style.display = 'flex';
+        }
+    },
+
+    /**
+     * Close help modal
+     */
+    closeHelpModal() {
+        const modal = document.getElementById('helpModal');
+        if (modal) {
+            modal.style.display = 'none';
+        }
     }
 };
 

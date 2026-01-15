@@ -11,6 +11,11 @@ const Grid = {
     currentPuzzleId: null,
     autoSaveTimer: null,
     
+    // Undo/Redo history
+    undoStack: [],
+    redoStack: [],
+    maxHistorySize: 100,
+    
     // Canvas properties
     canvas: null,
     ctx: null,
@@ -102,6 +107,13 @@ const Grid = {
         document.getElementById('inputModeBtn').addEventListener('click', () => this.setMode(false));
         document.getElementById('notesModeBtn').addEventListener('click', () => this.setMode(true));
         
+        // Undo/Redo buttons
+        document.getElementById('undoBtn').addEventListener('click', () => this.undo());
+        document.getElementById('redoBtn').addEventListener('click', () => this.redo());
+        
+        // Clear cell button
+        document.getElementById('clearCellBtn').addEventListener('click', () => this.clearSelectedCell());
+        
         // Zoom controls
         document.getElementById('zoomInBtn').addEventListener('click', () => this.zoomIn());
         document.getElementById('zoomOutBtn').addEventListener('click', () => this.zoomOut());
@@ -192,6 +204,17 @@ const Grid = {
      * Handle keyboard input
      */
     handleKeyPress(e) {
+        // Handle undo/redo globally (even without cell selected)
+        if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
+            e.preventDefault();
+            this.undo();
+            return;
+        } else if ((e.ctrlKey || e.metaKey) && (e.key === 'y' || (e.key === 'z' && e.shiftKey))) {
+            e.preventDefault();
+            this.redo();
+            return;
+        }
+        
         if (this.selectedCell === null) return;
         
         const { row, col } = Utils.getRowCol(this.selectedCell);
@@ -248,13 +271,29 @@ const Grid = {
     /**
      * Set cell value
      */
-    setCellValue(row, col, value) {
+    setCellValue(row, col, value, skipHistory = false) {
         if (this.originalGrid[row][col] !== 0) return;
+        
+        const oldValue = this.currentGrid[row][col];
+        const index = Utils.getIndex(row, col);
+        const oldNotes = [...this.cellNotes[index]];
+        
+        // Save to history if this is a user action
+        if (!skipHistory && oldValue !== value) {
+            this.saveToHistory({
+                type: 'cell',
+                row,
+                col,
+                oldValue,
+                newValue: value,
+                oldNotes: oldNotes
+            });
+        }
         
         this.currentGrid[row][col] = value;
         this.scheduleAutoSave();
         if (value !== 0) {
-            this.clearCellNotes(Utils.getIndex(row, col));
+            this.clearCellNotes(index);
         }
         this.draw();
         
@@ -262,20 +301,39 @@ const Grid = {
         if (typeof Play !== 'undefined' && Play.checkPuzzleCompletion) {
             Play.checkPuzzleCompletion();
         }
+        
+        // Update undo/redo button states
+        this.updateUndoRedoButtons();
     },
 
     /**
      * Toggle note in cell
      */
-    toggleNote(index, number) {
+    toggleNote(index, number, skipHistory = false) {
         const { row, col } = Utils.getRowCol(index);
         
         if (this.currentGrid[row][col] !== 0) return;
         if (this.originalGrid[row][col] !== 0) return;
         
+        const oldNotes = [...this.cellNotes[index]];
+        
+        // Save to history if this is a user action
+        if (!skipHistory) {
+            this.saveToHistory({
+                type: 'notes',
+                index,
+                oldNotes: oldNotes,
+                newNotes: [...this.cellNotes[index]],
+                toggledNumber: number
+            });
+        }
+        
         this.cellNotes[index][number] = !this.cellNotes[index][number];
         this.scheduleAutoSave();
         this.draw();
+        
+        // Update undo/redo button states
+        this.updateUndoRedoButtons();
     },
 
     /**
@@ -289,6 +347,11 @@ const Grid = {
      * Set mode
      */
     setMode(notesMode) {
+        // Exit hint mode if active
+        if (typeof Play !== 'undefined' && Play.isHintMode) {
+            Play.exitHintMode();
+        }
+        
         this.isNotesMode = notesMode;
         
         const inputBtn = document.getElementById('inputModeBtn');
@@ -695,6 +758,7 @@ const Grid = {
         this.currentGrid = Utils.copyGrid(puzzleData.currentGrid);
         this.cellNotes = puzzleData.notes;
         this.selectedCell = null;
+        this.clearHistory(); // Clear undo/redo history when loading puzzle
         this.draw();
     },
 
@@ -720,11 +784,18 @@ const Grid = {
         try {
             const status = Validator.isSolved(this.currentGrid) ? 'completed' : 'in-progress';
             
-            await Storage.updatePuzzle(this.currentPuzzleId, {
+            const updates = {
                 currentGrid: this.currentGrid,
                 notes: this.cellNotes,
                 status: status
-            });
+            };
+            
+            // Include timer elapsed time if Play module has it
+            if (typeof Play !== 'undefined' && Play.elapsedTime !== undefined) {
+                updates.timeElapsed = Play.elapsedTime;
+            }
+            
+            await Storage.updatePuzzle(this.currentPuzzleId, updates);
         } catch (error) {
             console.error('Auto-save failed:', error);
         }
@@ -742,5 +813,119 @@ const Grid = {
      */
     getOriginalGrid() {
         return this.originalGrid.map(row => [...row]);
+    },
+
+    /**
+     * Save current state to undo history
+     */
+    saveToHistory(action) {
+        this.undoStack.push(action);
+        
+        // Limit history size
+        if (this.undoStack.length > this.maxHistorySize) {
+            this.undoStack.shift();
+        }
+        
+        // Clear redo stack when new action is performed
+        this.redoStack = [];
+    },
+
+    /**
+     * Undo last action
+     */
+    undo() {
+        if (this.undoStack.length === 0) return;
+        
+        const action = this.undoStack.pop();
+        this.redoStack.push(action);
+        
+        if (action.type === 'cell') {
+            // Restore cell value
+            this.currentGrid[action.row][action.col] = action.oldValue;
+            // Restore notes
+            const index = Utils.getIndex(action.row, action.col);
+            this.cellNotes[index] = action.oldNotes;
+        } else if (action.type === 'notes') {
+            // Restore notes
+            this.cellNotes[action.index] = action.oldNotes;
+        }
+        
+        this.scheduleAutoSave();
+        this.draw();
+        this.updateUndoRedoButtons();
+    },
+
+    /**
+     * Redo last undone action
+     */
+    redo() {
+        if (this.redoStack.length === 0) return;
+        
+        const action = this.redoStack.pop();
+        this.undoStack.push(action);
+        
+        if (action.type === 'cell') {
+            // Restore cell value
+            this.currentGrid[action.row][action.col] = action.newValue;
+            // Clear notes if value was placed
+            const index = Utils.getIndex(action.row, action.col);
+            if (action.newValue !== 0) {
+                this.cellNotes[index] = Array(10).fill(false);
+            }
+        } else if (action.type === 'notes') {
+            // Toggle the note again
+            this.cellNotes[action.index][action.toggledNumber] = !this.cellNotes[action.index][action.toggledNumber];
+        }
+        
+        this.scheduleAutoSave();
+        this.draw();
+        this.updateUndoRedoButtons();
+    },
+
+    /**
+     * Update undo/redo button states
+     */
+    updateUndoRedoButtons() {
+        const undoBtn = document.getElementById('undoBtn');
+        const redoBtn = document.getElementById('redoBtn');
+        
+        if (undoBtn) {
+            undoBtn.disabled = this.undoStack.length === 0;
+        }
+        
+        if (redoBtn) {
+            redoBtn.disabled = this.redoStack.length === 0;
+        }
+    },
+
+    /**
+     * Clear history (called when loading a new puzzle)
+     */
+    clearHistory() {
+        this.undoStack = [];
+        this.redoStack = [];
+        this.updateUndoRedoButtons();
+    },
+
+    /**
+     * Clear selected cell value and notes
+     */
+    clearSelectedCell() {
+        if (this.selectedCell === null) {
+            Utils.showMessage('Select a cell to clear', 'info', 2000);
+            return;
+        }
+        
+        const { row, col } = Utils.getRowCol(this.selectedCell);
+        
+        // Can't clear locked cells
+        if (this.originalGrid[row][col] !== 0) {
+            Utils.showMessage('Cannot clear a locked cell', 'info', 2000);
+            return;
+        }
+        
+        // Clear value and notes
+        this.setCellValue(row, col, 0);
+        this.clearCellNotes(this.selectedCell);
     }
 };

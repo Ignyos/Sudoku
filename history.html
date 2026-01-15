@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Sudoku - Puzzle History">
+    <title>History - Sudoku</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+    <div class="container">
+        <main>
+            <div class="history-page">
+                <!-- Header Bar -->
+                <div class="page-header">
+                    <div class="page-info">
+                        <h2>Puzzle History</h2>
+                    </div>
+                    <a href="index.html" class="menu-btn">Menu</a>
+                </div>
+
+                <!-- Filter Controls -->
+                <div class="history-controls">
+                    <div class="history-filters">
+                        <button class="filter-btn active" data-filter="all">All</button>
+                        <button class="filter-btn" data-filter="in-progress">In Progress</button>
+                        <button class="filter-btn" data-filter="completed">Completed</button>
+                    </div>
+                </div>
+
+                <!-- History List -->
+                <div class="history-list" id="historyList">
+                    <!-- Populated by JavaScript -->
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Delete Puzzle Confirmation Modal -->
+    <div id="deletePuzzleModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <h2>Delete Puzzle?</h2>
+            <p>Are you sure you want to delete this puzzle? This action cannot be undone.</p>
+            
+            <div class="modal-actions">
+                <button id="cancelDeleteBtn" class="modal-btn secondary">Cancel</button>
+                <button id="confirmDeleteBtn" class="modal-btn primary">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <footer class="site-footer">
+        <p class="footer-content">&copy; 2026 <a href="https://ignyos.com" target="_blank">Ignyos</a> | <a href="https://github.com/Ignyos/Sudoku" target="_blank">GitHub</a></p>
+    </footer>
+
+    <script src="js/utils.js"></script>
+    <script src="js/storage.js"></script>
+    <script src="js/history.js"></script>
+</body>
+</html>

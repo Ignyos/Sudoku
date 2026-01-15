@@ -13,17 +13,18 @@
         <header>
             <h1>Sudoku</h1>
             <p class="subtitle">Classic puzzles, modern experience</p>
-            <p class="subtitle-detail">Generate puzzles, solve manually, or enter your own</p>
+            <p class="subtitle-detail">Generate puzzles or enter your own</p>
+            <p class="subtitle-detail">Solve manually, get hints, or auto-solve</p>
         </header>
 
         <main>
             <!-- Landing Page / Menu -->
-            <div class="landing-page" id="landingPage">
+            <div class="landing-page">
                 <div class="landing-content">
                     <div class="action-buttons">
-                        <button class="action-button" id="newGameBtn">New Game</button>
+                        <button class="action-button" id="newGameBtn">New Puzzle</button>
                         <button class="action-button" id="enterPuzzleBtn">Enter Puzzle</button>
-                        <button class="action-button" id="continueBtn">Continue</button>
+                        <button class="action-button" id="historyBtn">History / Continue</button>
                     </div>
                 </div>
             </div>
@@ -58,76 +59,11 @@
                     </div>
                 </div>
             </div>
-
-            <!-- History Modal -->
-            <div class="modal" id="historyModal" style="display: none;">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h2>Puzzle History</h2>
-                        <button class="modal-close" id="closeHistoryBtn">&times;</button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="history-filters">
-                            <button class="filter-btn active" data-filter="all">All</button>
-                            <button class="filter-btn" data-filter="in-progress">In Progress</button>
-                            <button class="filter-btn" data-filter="completed">Completed</button>
-                        </div>
-                        <div class="history-list" id="historyList">
-                            <!-- Populated by JavaScript -->
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Game Area -->
-            <div class="game-area" id="gameArea" style="display: none;">
-                <div class="game-header">
-                    <div class="game-info">
-                        <span class="game-mode" id="gameMode"></span>
-                        <span class="difficulty-badge" id="difficultyBadge" style="display: none;"></span>
-                    </div>
-                    <button class="menu-btn" id="backToMenuBtn">☰ Menu</button>
-                </div>
-
-                <div class="controls-top">
-                    <div class="left-controls">
-                        <div class="mode-toggle">
-                            <button id="inputModeBtn" class="mode-btn active" title="Input numbers">
-                                <span class="mode-icon">✏️</span>
-                                <span class="mode-label">Input</span>
-                            </button>
-                            <button id="notesModeBtn" class="mode-btn" title="Add pencil marks">
-                                <span class="mode-icon">📝</span>
-                                <span class="mode-label">Notes</span>
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <div class="zoom-controls">
-                        <button id="zoomOutBtn" class="zoom-btn" title="Zoom out">-</button>
-                        <span id="zoomLevel" class="zoom-level">100%</span>
-                        <button id="zoomInBtn" class="zoom-btn" title="Zoom in">+</button>
-                        <button id="zoomResetBtn" class="zoom-btn" title="Reset zoom">↺</button>
-                    </div>
-                </div>
-
-                <div class="grid-container" id="gridContainer">
-                    <div class="grid-wrapper" id="gridWrapper">
-                        <canvas id="sudokuCanvas" class="sudoku-canvas"></canvas>
-                    </div>
-                </div>
-
-                <div class="controls-bottom" id="controlsBottom">
-                    <!-- Controls change based on mode -->
-                </div>
-
-                <div class="status-message" id="statusMessage"></div>
-            </div>
         </main>
     </div>
 
     <footer class="site-footer">
-        <p class="footer-content">&copy; 2026 Ignyos | <a href="https://github.com/Ignyos/Sudoku" target="_blank">GitHub</a></p>
+        <p class="footer-content">&copy; 2026 <a href="https://ignyos.com" target="_blank">Ignyos</a> | <a href="https://github.com/Ignyos/Sudoku" target="_blank">GitHub</a></p>
     </footer>
 
     <script src="js/utils.js"></script>
@@ -135,7 +71,6 @@
     <script src="js/solver.js"></script>
     <script src="js/generator.js"></script>
     <script src="js/storage.js"></script>
-    <script src="js/grid.js"></script>
-    <script src="js/app.js"></script>
+    <script src="js/menu.js"></script>
 </body>
 </html>

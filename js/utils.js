@@ -15,11 +15,20 @@ const Utils = {
 
         statusElement.textContent = message;
         statusElement.className = `status-message ${type}`;
+        
+        // Trigger animation by adding 'show' class after a brief delay
+        setTimeout(() => {
+            statusElement.classList.add('show');
+        }, 10);
 
         if (duration > 0) {
             setTimeout(() => {
-                statusElement.textContent = '';
-                statusElement.className = 'status-message';
+                statusElement.classList.remove('show');
+                // Clear message after animation completes
+                setTimeout(() => {
+                    statusElement.textContent = '';
+                    statusElement.className = 'status-message';
+                }, 400); // Match CSS transition duration
             }, duration);
         }
     },
@@ -30,8 +39,11 @@ const Utils = {
     clearMessage() {
         const statusElement = document.getElementById('statusMessage');
         if (statusElement) {
-            statusElement.textContent = '';
-            statusElement.className = 'status-message';
+            statusElement.classList.remove('show');
+            setTimeout(() => {
+                statusElement.textContent = '';
+                statusElement.className = 'status-message';
+            }, 400);
         }
     },
 

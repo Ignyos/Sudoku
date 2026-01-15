@@ -57,11 +57,21 @@ const Solver = {
      * @returns {boolean} True if puzzle has exactly one solution
      */
     hasUniqueSolution(grid) {
+        return this.countSolutions(grid, 2) === 1;
+    },
+
+    /**
+     * Count the number of solutions (up to a maximum)
+     * @param {Array} grid - 9x9 grid array
+     * @param {number} maxCount - Maximum number of solutions to find (for early exit)
+     * @returns {number} Number of solutions found (up to maxCount)
+     */
+    countSolutions(grid, maxCount = 2) {
         const gridCopy = Utils.copyGrid(grid);
         let solutionCount = 0;
 
-        const countSolutions = (g) => {
-            if (solutionCount > 1) return; // Early exit
+        const count = (g) => {
+            if (solutionCount >= maxCount) return; // Early exit
 
             const emptyCell = this.findEmptyCell(g);
             if (!emptyCell) {
@@ -74,16 +84,16 @@ const Solver = {
             for (let num = 1; num <= 9; num++) {
                 if (Validator.isValidPlacement(g, row, col, num)) {
                     g[row][col] = num;
-                    countSolutions(g);
+                    count(g);
                     g[row][col] = 0;
 
-                    if (solutionCount > 1) return;
+                    if (solutionCount >= maxCount) return;
                 }
             }
         };
 
-        countSolutions(gridCopy);
-        return solutionCount === 1;
+        count(gridCopy);
+        return solutionCount;
     },
 
     /**

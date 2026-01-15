@@ -132,7 +132,27 @@ const Grid = {
         const row = Math.floor(y / this.cellSize);
         
         if (row >= 0 && row < 9 && col >= 0 && col < 9) {
-            this.selectCell(Utils.getIndex(row, col));
+            const index = Utils.getIndex(row, col);
+            
+            // If clicking on already selected cell in Notes mode
+            if (this.isNotesMode && this.selectedCell === index && this.currentGrid[row][col] === 0) {
+                // Calculate which note position was clicked (1-9)
+                const cellX = col * this.cellSize;
+                const cellY = row * this.cellSize;
+                const offsetX = x - cellX;
+                const offsetY = y - cellY;
+                const miniSize = this.cellSize / 3;
+                
+                const noteCol = Math.floor(offsetX / miniSize);
+                const noteRow = Math.floor(offsetY / miniSize);
+                const noteNum = noteRow * 3 + noteCol + 1;
+                
+                // Toggle the note
+                this.toggleNote(index, noteNum);
+            } else {
+                // Select the cell
+                this.selectCell(index);
+            }
         }
     },
 
@@ -178,8 +198,16 @@ const Grid = {
             }
         } else if (e.key === 'Delete' || e.key === 'Backspace') {
             e.preventDefault();
-            this.setCellValue(row, col, 0);
-            this.clearCellNotes(this.selectedCell);
+            if (this.isNotesMode) {
+                // In Notes mode, only clear notes
+                this.clearCellNotes(this.selectedCell);
+                this.scheduleAutoSave();
+                this.draw();
+            } else {
+                // In Input mode, clear value and notes
+                this.setCellValue(row, col, 0);
+                this.clearCellNotes(this.selectedCell);
+            }
         } else if (e.key.startsWith('Arrow')) {
             e.preventDefault();
             this.navigateCell(e.key);
@@ -232,6 +260,7 @@ const Grid = {
         if (this.originalGrid[row][col] !== 0) return;
         
         this.cellNotes[index][number] = !this.cellNotes[index][number];
+        this.scheduleAutoSave();
         this.draw();
     },
 
@@ -258,6 +287,14 @@ const Grid = {
             inputBtn.classList.add('active');
             notesBtn.classList.remove('active');
         }
+        
+        // Update hint button label if Play module exists
+        if (typeof Play !== 'undefined' && Play.updateHintButtonLabel) {
+            Play.updateHintButtonLabel();
+        }
+        
+        // Redraw to show/hide note grid
+        this.draw();
     },
 
     /**
@@ -332,6 +369,37 @@ const Grid = {
             ctx.strokeStyle = this.colors.primaryColor;
             ctx.lineWidth = 3;
             ctx.strokeRect(x + 1.5, y + 1.5, this.cellSize - 3, this.cellSize - 3);
+            
+            // Draw 3x3 grid overlay in Notes mode
+            if (this.isNotesMode && value === 0) {
+                this.drawNoteGrid(x, y);
+            }
+        }
+    },
+
+    /**
+     * Draw 3x3 grid overlay for notes mode
+     */
+    drawNoteGrid(x, y) {
+        const ctx = this.ctx;
+        const miniSize = this.cellSize / 3;
+        
+        ctx.strokeStyle = this.colors.borderMedium;
+        ctx.lineWidth = 1;
+        
+        // Draw dividing lines
+        for (let i = 1; i < 3; i++) {
+            // Vertical lines
+            ctx.beginPath();
+            ctx.moveTo(x + i * miniSize, y);
+            ctx.lineTo(x + i * miniSize, y + this.cellSize);
+            ctx.stroke();
+            
+            // Horizontal lines
+            ctx.beginPath();
+            ctx.moveTo(x, y + i * miniSize);
+            ctx.lineTo(x + this.cellSize, y + i * miniSize);
+            ctx.stroke();
         }
     },
 
@@ -342,6 +410,7 @@ const Grid = {
         const ctx = this.ctx;
         const noteSize = this.cellSize / 3;
         const fontSize = this.cellSize * 0.15;
+        const { row, col } = Utils.getRowCol(index);
         
         ctx.font = `${fontSize}px Arial, sans-serif`;
         ctx.textAlign = 'center';
@@ -354,7 +423,9 @@ const Grid = {
                 const noteX = x + noteCol * noteSize + noteSize / 2;
                 const noteY = y + noteRow * noteSize + noteSize / 2;
                 
-                ctx.fillStyle = this.colors.primaryColor;
+                // Check if this note is valid for this cell
+                const isValid = Validator.isValidPlacement(this.currentGrid, row, col, num);
+                ctx.fillStyle = isValid ? this.colors.primaryColor : this.colors.errorColor;
                 ctx.fillText(num.toString(), noteX, noteY);
             }
         }
@@ -635,5 +706,19 @@ const Grid = {
         } catch (error) {
             console.error('Auto-save failed:', error);
         }
+    },
+
+    /**
+     * Get current grid state
+     */
+    getCurrentGrid() {
+        return this.currentGrid.map(row => [...row]);
+    },
+
+    /**
+     * Get original grid state
+     */
+    getOriginalGrid() {
+        return this.originalGrid.map(row => [...row]);
     }
 };

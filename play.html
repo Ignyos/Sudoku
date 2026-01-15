@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Sudoku - Play and solve puzzles">
+    <title>Play - Sudoku</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+    <div class="container">
+        <main>
+            <!-- Game Area -->
+            <div class="game-area">
+                <div class="game-header">
+                    <div class="game-info">
+                        <span class="game-mode" id="gameMode"></span>
+                        <span class="difficulty-badge" id="difficultyBadge" style="display: none;"></span>
+                    </div>
+                    <a href="index.html" class="menu-btn">Menu</a>
+                </div>
+
+                <div class="controls-top">
+                    <div class="left-controls">
+                        <div class="mode-toggle">
+                            <button id="inputModeBtn" class="mode-btn active" title="Input numbers">Input</button>
+                            <button id="notesModeBtn" class="mode-btn" title="Add pencil marks">Notes</button>
+                        </div>
+                    </div>
+                    
+                    <div class="zoom-controls">
+                        <button id="zoomOutBtn" class="zoom-btn" title="Zoom out">-</button>
+                        <span id="zoomLevel" class="zoom-level">100%</span>
+                        <button id="zoomInBtn" class="zoom-btn" title="Zoom in">+</button>
+                        <button id="zoomResetBtn" class="zoom-btn" title="Reset zoom">↺</button>
+                    </div>
+                </div>
+
+                <div class="grid-container" id="gridContainer">
+                    <div class="grid-wrapper" id="gridWrapper">
+                        <canvas id="sudokuCanvas" class="sudoku-canvas"></canvas>
+                    </div>
+                </div>
+
+                <div class="controls-bottom" id="controlsBottom">
+                    <!-- Entry Mode Buttons -->
+                    <button id="doneEditingBtn" class="action-btn primary-btn" style="display: none;">Done Editing</button>
+                    <button id="clearGridBtn" class="action-btn secondary-btn" style="display: none;">Clear</button>
+                    
+                    <!-- Playing Mode Buttons -->
+                    <button id="getHintBtn" class="action-btn secondary-btn" style="display: none;">Get Hint</button>
+                    <button id="solvePuzzleBtn" class="action-btn secondary-btn" style="display: none;">Solve Puzzle</button>
+                    <button id="editPuzzleBtn" class="action-btn secondary-btn" style="display: none;">Edit Puzzle</button>
+                </div>
+
+                <div class="status-message" id="statusMessage"></div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Finalize Puzzle Modal -->
+    <div id="finalizePuzzleModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <h2>Finalize Puzzle</h2>
+            <p>This will lock the entered numbers as givens and enable solving mode.</p>
+            
+            <div id="validationStatus" class="validation-status">
+                <p>Validating puzzle...</p>
+            </div>
+            
+            <div class="modal-actions">
+                <button id="cancelFinalizeBtn" class="modal-btn secondary">Cancel</button>
+                <button id="confirmFinalizeBtn" class="modal-btn primary" disabled>Lock Puzzle</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Puzzle Confirmation Modal -->
+    <div id="editPuzzleModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <h2>Unlock Puzzle for Editing?</h2>
+            <p>This will clear your solving progress and return to entry mode. The original puzzle layout will be restored for editing.</p>
+            
+            <div class="modal-actions">
+                <button id="cancelEditBtn" class="modal-btn secondary">Cancel</button>
+                <button id="confirmEditBtn" class="modal-btn primary">Unlock Puzzle</button>
+            </div>
+        </div>
+    </div>
+
+    <footer class="site-footer">
+        <p class="footer-content">&copy; 2026 <a href="https://ignyos.com" target="_blank">Ignyos</a> | <a href="https://github.com/Ignyos/Sudoku" target="_blank">GitHub</a></p>
+    </footer>
+
+    <script src="js/utils.js"></script>
+    <script src="js/validator.js"></script>
+    <script src="js/solver.js"></script>
+    <script src="js/generator.js"></script>
+    <script src="js/storage.js"></script>
+    <script src="js/grid.js"></script>
+    <script src="js/play.js"></script>
+</body>
+</html>

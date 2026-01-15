@@ -32,12 +32,7 @@
     }
 
     .grid-container {
-        max-width: 100%;
         padding: 0.75rem;
-    }
-
-    .grid-wrapper {
-        height: 500px;
     }
 
     .controls-bottom {
@@ -90,8 +85,7 @@
     }
 
     .grid-container {
-     grid-wrapper {
-        height: 400px
+        padding: 0.5rem;
     }
 
     .cell {
@@ -111,13 +105,7 @@
 
 /* Large screens */
 @media (min-width: 1200px) {
-    .grid-container {
-        max-width: 750px;
-    }
-
-    .grid-wrapper {
-        height: 700px;
-    }
+    /* Grid maintains consistent 600x600px size */
 }
 
 /* Touch device optimizations */
@@ -154,10 +142,6 @@
         flex-direction: row;
         justify-content: space-between;
     }
-
-    .grid-container {
-        max-height: 70vh;
-    }
 }
 
 /* Print styles */
@@ -186,7 +170,6 @@
     .grid-container {
         border: 2px solid black;
         box-shadow: none;
-        max-width: 100%;
         break-inside: avoid;
     }
 

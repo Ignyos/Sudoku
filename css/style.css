@@ -140,6 +140,11 @@ main {
     text-align: center;
 }
 
+.action-button-link {
+    text-decoration: none;
+    display: block;
+}
+
 .action-button:hover {
     background: var(--hover-bg);
     border-color: var(--primary-color);
@@ -150,6 +155,44 @@ main {
 
 .action-button:active {
     transform: translateY(0);
+}
+
+/* ===========================
+   Page Header (shared layout)
+   =========================== */
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: .5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--card-border);
+}
+
+.page-info h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    color: var(--text-primary);
+}
+
+/* ===========================
+   History Page
+   =========================== */
+.history-page {
+    padding: 2rem 0;
+    max-width: 650px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.history-controls {
+    margin-bottom: .5rem;
+}
+
+.history-filters {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
 }
 
 /* ===========================
@@ -177,6 +220,101 @@ main {
     max-height: 80vh;
     display: flex;
     flex-direction: column;
+    padding: 1.5rem;
+}
+
+.modal-content h2 {
+    margin: 0 0 1rem 0;
+    font-size: 1.5rem;
+    color: var(--text-primary);
+}
+
+.modal-content p {
+    margin: 0 0 1.5rem 0;
+    color: var(--text-secondary);
+    line-height: 1.6;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+.modal-btn {
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition-fast);
+    font-size: 1rem;
+}
+
+.modal-btn.primary {
+    background: var(--primary-color);
+    color: white;
+}
+
+.modal-btn.primary:hover:not(:disabled) {
+    background: var(--primary-hover);
+}
+
+.modal-btn.primary:disabled {
+    background: var(--border-medium);
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.modal-btn.secondary {
+    background: var(--card-bg);
+    color: var(--text-primary);
+    border: 1px solid var(--card-border);
+}
+
+.modal-btn.secondary:hover {
+    background: var(--hover-bg);
+}
+
+.validation-status {
+    background: var(--input-bg);
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.validation-status p {
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.validation-status.success p::before {
+    content: '✓';
+    color: var(--success-color);
+    font-weight: bold;
+    font-size: 1.25rem;
+}
+
+.validation-status.error p::before {
+    content: '✗';
+    color: var(--error-color);
+    font-weight: bold;
+    font-size: 1.25rem;
+}
+
+.validation-status.validating p::before {
+    content: '⋯';
+    color: var(--text-secondary);
+    font-size: 1.25rem;
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
 }
 
 .modal-header {
@@ -219,28 +357,30 @@ main {
 .history-filters {
     display: flex;
     gap: 0.5rem;
-    margin-bottom: 1rem;
+    background: var(--input-bg);
+    padding: 0.25rem;
+    border-radius: 8px;
+    width: fit-content;
 }
 
 .filter-btn {
     padding: 0.5rem 1rem;
-    background: var(--card-bg);
-    border: 1px solid var(--card-border);
+    background: transparent;
+    border: none;
     border-radius: 6px;
     cursor: pointer;
     font-size: 0.875rem;
-    color: var(--text-primary);
+    color: var(--text-secondary);
     transition: var(--transition-fast);
 }
 
 .filter-btn:hover {
-    border-color: var(--primary-color);
+    background: var(--hover-bg);
 }
 
 .filter-btn.active {
     background: var(--primary-color);
     color: white;
-    border-color: var(--primary-color);
 }
 
 .history-list {
@@ -277,6 +417,25 @@ main {
 .history-item-meta {
     font-size: 0.75rem;
     color: var(--text-secondary);
+}
+
+.history-status {
+    font-weight: 600;
+}
+
+.history-status.completed {
+    color: var(--success-color);
+}
+
+.history-status.in-progress {
+    color: var(--warning-color);
+}
+
+.empty-history {
+    text-align: center;
+    padding: 3rem 2rem;
+    color: var(--text-muted);
+    font-size: 1rem;
 }
 
 .history-item-actions {
@@ -364,9 +523,12 @@ main {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 1rem;
+    margin-bottom: .5rem;
     padding-bottom: 1rem;
     border-bottom: 1px solid var(--card-border);
+    max-width: 650px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .game-info {
@@ -376,11 +538,10 @@ main {
 }
 
 .game-mode {
-    font-size: 0.875rem;
+    font-size: 1.5rem;
     font-weight: 600;
-    color: var(--text-secondary);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+    color: var(--text-primary);
+    margin: 0;
 }
 
 .difficulty-badge {
@@ -419,6 +580,7 @@ main {
     color: var(--text-primary);
     cursor: pointer;
     transition: var(--transition-fast);
+    text-decoration: none;
 }
 
 .menu-btn:hover {
@@ -434,9 +596,12 @@ main {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 1.5rem;
+    margin-bottom: .5rem;
     gap: 1rem;
     flex-wrap: wrap;
+    max-width: 650px;
+    margin-right: auto;
+    margin-left: auto;
 }
 
 .left-controls {
@@ -531,8 +696,9 @@ main {
 .grid-container {
     position: relative;
     width: 100%;
-    max-width: 650px;
-    margin: 0 auto 2rem;
+    max-width: 640px;
+    min-width: 640px;
+    margin: 0 auto .5rem;
     background: var(--grid-bg);
     border: 3px solid var(--border-dark);
     border-radius: 8px;
@@ -542,7 +708,7 @@ main {
 
 .grid-wrapper {
     position: relative;
-    width: 100%;
+    width: 600px;
     height: 600px;
     overflow: auto;
     background: var(--bg-color);
@@ -631,6 +797,46 @@ main {
     border-color: var(--primary-color);
 }
 
+/* Button sizes */
+.action-btn {
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+}
+
+.action-btn-small {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+}
+
+/* Primary button variant */
+.primary-btn {
+    background: var(--primary-color);
+    color: white;
+}
+
+.primary-btn:hover:not(:disabled) {
+    background: var(--primary-hover);
+}
+
+/* Secondary button variant */
+.secondary-btn {
+    background: var(--card-bg);
+    color: var(--text-primary);
+    border: 1px solid var(--card-border);
+}
+
+.secondary-btn:hover:not(:disabled) {
+    background: var(--hover-bg);
+    border-color: var(--primary-color);
+}
+
+/* Disabled state for mode buttons */
+.mode-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
 /* ===========================
    Dropdown Menu
    =========================== */
@@ -694,35 +900,51 @@ main {
 }
 
 /* ===========================
-   Status Message
+   Status Message (Toast Overlay)
    =========================== */
 .status-message {
-    min-height: 2rem;
-    padding: 0.75rem 1rem;
+    position: fixed;
+    top: -100px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 2000;
+    padding: 1rem 2rem;
     border-radius: 8px;
     text-align: center;
     font-weight: 500;
-    transition: var(--transition-normal);
+    max-width: 500px;
+    min-width: 300px;
+    box-shadow: var(--shadow-lg);
+    transition: top 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    pointer-events: none;
+}
+
+.status-message.show {
+    top: 1.5rem;
 }
 
 .status-message.success {
     background: #d1fae5;
     color: #065f46;
+    border: 2px solid #10b981;
 }
 
 .status-message.error {
     background: #fee2e2;
     color: #991b1b;
+    border: 2px solid #ef4444;
 }
 
 .status-message.warning {
     background: #fef3c7;
     color: #92400e;
+    border: 2px solid #f59e0b;
 }
 
 .status-message.info {
     background: #dbeafe;
     color: #1e40af;
+    border: 2px solid #3b82f6;
 }
 
 .status-message:empty {

@@ -134,6 +134,15 @@ const Grid = {
         if (row >= 0 && row < 9 && col >= 0 && col < 9) {
             const index = Utils.getIndex(row, col);
             
+            // Check if in hint mode (Play module)
+            if (typeof Play !== 'undefined' && Play.isHintMode) {
+                // Only allow clicking empty cells in hint mode
+                if (this.currentGrid[row][col] === 0) {
+                    Play.placeHintInCell(row, col);
+                }
+                return;
+            }
+            
             // If clicking on already selected cell in Notes mode
             if (this.isNotesMode && this.selectedCell === index && this.currentGrid[row][col] === 0) {
                 // Calculate which note position was clicked (1-9)
@@ -333,10 +342,17 @@ const Grid = {
         const isLocked = this.originalGrid[row][col] !== 0;
         const isSelected = this.selectedCell === index;
         const isInvalid = invalidCells.includes(index);
+        const isEmpty = value === 0;
+        
+        // Check if in hint mode
+        const isHintMode = typeof Play !== 'undefined' && Play.isHintMode;
         
         // Determine cell background
         let bgColor = this.colors.cellBg;
-        if (isInvalid) {
+        if (isHintMode && isEmpty) {
+            // Yellow highlight for empty cells in hint mode
+            bgColor = '#ffd700';
+        } else if (isInvalid) {
             bgColor = this.colors.cellInvalid;
         } else if (isSelected) {
             bgColor = this.colors.cellSelected;
@@ -383,22 +399,23 @@ const Grid = {
     drawNoteGrid(x, y) {
         const ctx = this.ctx;
         const miniSize = this.cellSize / 3;
+        const inset = 2; // Inset to avoid drawing over selection border
         
         ctx.strokeStyle = this.colors.borderMedium;
         ctx.lineWidth = 1;
         
-        // Draw dividing lines
+        // Draw dividing lines with inset to avoid selection border
         for (let i = 1; i < 3; i++) {
             // Vertical lines
             ctx.beginPath();
-            ctx.moveTo(x + i * miniSize, y);
-            ctx.lineTo(x + i * miniSize, y + this.cellSize);
+            ctx.moveTo(x + i * miniSize, y + inset);
+            ctx.lineTo(x + i * miniSize, y + this.cellSize - inset);
             ctx.stroke();
             
             // Horizontal lines
             ctx.beginPath();
-            ctx.moveTo(x, y + i * miniSize);
-            ctx.lineTo(x + this.cellSize, y + i * miniSize);
+            ctx.moveTo(x + inset, y + i * miniSize);
+            ctx.lineTo(x + this.cellSize - inset, y + i * miniSize);
             ctx.stroke();
         }
     },

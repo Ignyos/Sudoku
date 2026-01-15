@@ -6,6 +6,7 @@ const Play = {
     currentMode: null, // 'new', 'continue', 'entry'
     currentPuzzleId: null,
     isEntryLocked: false, // Track if entry mode puzzle is locked
+    isHintMode: false, // Track if in hint selection mode
 
     /**
      * Initialize the play page
@@ -249,15 +250,23 @@ const Play = {
     },
 
     /**
-     * Update hint button label based on Notes mode
+     * Update hint button label based on Notes mode and hint mode
      */
     updateHintButtonLabel() {
         const getHintBtn = document.getElementById('getHintBtn');
-        if (getHintBtn && Grid.isNotesMode) {
+        if (!getHintBtn) return;
+        
+        if (this.isHintMode) {
+            getHintBtn.textContent = 'Cancel Hint';
+        } else if (Grid.isNotesMode) {
             getHintBtn.textContent = 'Fill Notes';
-        } else if (getHintBtn) {
+        } else {
             getHintBtn.textContent = 'Get Hint';
         }
+        
+        // Disable if puzzle is solved
+        const isSolved = Grid.currentGrid.every(row => row.every(cell => cell !== 0));
+        getHintBtn.disabled = isSolved;
     },
 
     /**
@@ -438,16 +447,87 @@ const Play = {
         
         Grid.scheduleAutoSave();
         Grid.draw();
-        
-        Utils.showMessage(`Notes filled: ${validNumbers.join(', ')}`, 'success', 3000);
     },
 
     /**
      * Place a hint (correct answer) in a cell
      */
     placeHint() {
-        Utils.showMessage('Place Hint feature coming soon!', 'info', 2000);
-        // TODO: Implement placing correct answer
+        if (this.isHintMode) {
+            // Exit hint mode
+            this.exitHintMode();
+        } else {
+            // Enter hint mode
+            this.enterHintMode();
+        }
+    },
+
+    /**
+     * Enter hint selection mode
+     */
+    enterHintMode() {
+        // Check if there are empty cells
+        const hasEmptyCells = Grid.currentGrid.some(row => row.some(cell => cell === 0));
+        if (!hasEmptyCells) {
+            Utils.showMessage('Puzzle is already complete!', 'info', 2000);
+            return;
+        }
+        
+        this.isHintMode = true;
+        this.updateHintButtonLabel();
+        Grid.draw();
+        
+        // Add hint-mode class to grid wrapper for cursor
+        const gridWrapper = document.getElementById('gridWrapper');
+        if (gridWrapper) {
+            gridWrapper.classList.add('hint-mode');
+        }
+        
+        Utils.showMessage('Select a cell to reveal its answer', 'info', 0);
+    },
+
+    /**
+     * Exit hint selection mode
+     */
+    exitHintMode() {
+        this.isHintMode = false;
+        this.updateHintButtonLabel();
+        Grid.draw();
+        
+        // Remove hint-mode class from grid wrapper
+        const gridWrapper = document.getElementById('gridWrapper');
+        if (gridWrapper) {
+            gridWrapper.classList.remove('hint-mode');
+        }
+        
+        Utils.clearMessage();
+    },
+
+    /**
+     * Place hint in selected cell
+     */
+    placeHintInCell(row, col) {
+        // Get the solution for this cell
+        const puzzleGrid = Grid.getOriginalGrid();
+        
+        // Create a deep copy of the grid for solving
+        const gridCopy = puzzleGrid.map(row => [...row]);
+        
+        // Solve returns boolean, modifies grid in place
+        const solved = Solver.solve(gridCopy);
+        
+        if (!solved) {
+            Utils.showMessage('Cannot determine solution for this puzzle', 'error', 2000);
+            this.exitHintMode();
+            return;
+        }
+        
+        // Get the correct value from the solved grid
+        const correctValue = gridCopy[row][col];
+        Grid.setCellValue(row, col, correctValue);
+        this.exitHintMode();
+        
+        Utils.showMessage('Hint placed!', 'success', 2000);
     },
 
     /**

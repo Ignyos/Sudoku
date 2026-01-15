@@ -1,0 +1,210 @@
+/* ===========================
+   Mobile & Tablet Styles
+   =========================== */
+
+/* Tablet and below */
+@media (max-width: 768px) {
+    .container {
+        padding: 1rem;
+    }
+
+    header h1 {
+        font-size: 2rem;
+    }
+
+    .subtitle {
+        font-size: 1rem;
+    }
+
+    main {
+        padding: 1.5rem;
+    }
+
+    .controls-top {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .mode-toggle,
+    .zoom-controls {
+        justify-content: center;
+        width: 100%;
+    }
+
+    .grid-container {
+        max-width: 100%;
+        padding: 0.75rem;
+    }
+
+    .grid-wrapper {
+        height: 500px;
+    }
+
+    .controls-bottom {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .action-btn {
+        width: 100%;
+    }
+}
+
+/* Mobile */
+@media (max-width: 480px) {
+    .container {
+        padding: 0.5rem;
+    }
+
+    header h1 {
+        font-size: 1.75rem;
+    }
+
+    .subtitle {
+        font-size: 0.875rem;
+    }
+
+    main {
+        padding: 1rem;
+        border-radius: 8px;
+    }
+
+    .mode-btn {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.875rem;
+    }
+
+    .mode-label {
+        display: none;
+    }
+
+    .zoom-btn {
+        width: 32px;
+        height: 32px;
+        font-size: 1rem;
+    }
+
+    .zoom-level {
+        font-size: 0.75rem;
+        min-width: 45px;
+    }
+
+    .grid-container {
+     grid-wrapper {
+        height: 400px
+    }
+
+    .cell {
+        font-size: clamp(1rem, 5vw, 1.5rem);
+    }
+
+    .action-btn {
+        padding: 0.625rem 1rem;
+        font-size: 0.875rem;
+    }
+
+    footer {
+        padding: 1rem;
+        font-size: 0.75rem;
+    }
+}
+
+/* Large screens */
+@media (min-width: 1200px) {
+    .grid-container {
+        max-width: 750px;
+    }
+
+    .grid-wrapper {
+        height: 700px;
+    }
+}
+
+/* Touch device optimizations */
+@media (hover: none) and (pointer: coarse) {
+    .mode-btn,
+    .zoom-btn,
+    .action-btn {
+        /* Ensure minimum touch target size */
+        min-height: 44px;
+    }
+
+    /* Remove hover states on touch devices */
+    .mode-btn:hover,
+    .zoom-btn:hover,
+    .action-btn:hover {
+        transform: none;
+    }
+}
+
+/* High DPI displays */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    .sudoku-grid {
+        border-width: 2px;
+    }
+    /* Cell border-width handled by canvas scaling */
+}
+
+@media (max-width: 768px) {
+    main {
+        padding: 1rem;
+    }
+
+    .controls-top {
+        flex-direction: row;
+        justify-content: space-between;
+    }
+
+    .grid-container {
+        max-height: 70vh;
+    }
+}
+
+/* Print styles */
+@media print {
+    body {
+        background: white;
+    }
+
+    .container {
+        max-width: 100%;
+    }
+
+    header,
+    .controls-top,
+    .controls-bottom,
+    .status-message,
+    footer {
+        display: none;
+    }
+
+    main {
+        box-shadow: none;
+        padding: 0;
+    }
+
+    .grid-container {
+        border: 2px solid black;
+        box-shadow: none;
+        max-width: 100%;
+        break-inside: avoid;
+    }
+
+    .sudoku-grid {
+        border: 2px solid black;
+    }
+
+    .cell {
+        border: 1px solid #999;
+    }
+
+    .cell.solved {
+        background: white;
+        color: black;
+    }
+
+    .grid-wrapper {
+        height: auto;
+        overflow: visible;
+    }
+}

@@ -36,7 +36,7 @@ const Grid = {
     // Colors from CSS variables
     colors: {
         cellBg: '#ffffff',
-        cellHover: '#f1f5f9',
+        cellHover: '#fef9e7',
         cellSelected: '#dbeafe',
         cellLocked: '#f8fafc',
         cellSolved: '#d1fae5',
@@ -375,6 +375,51 @@ const Grid = {
     },
 
     /**
+     * Check if a cell is related to the selected cell
+     * (same row, column, or 3x3 box)
+     */
+    isCellRelated(row, col) {
+        // Check if highlighting is enabled in preferences
+        const prefs = this.getPreferences();
+        if (!prefs.highlightRelated) return false;
+        
+        // No cell selected
+        if (this.selectedCell === null) return false;
+        
+        const { row: selectedRow, col: selectedCol } = Utils.getRowCol(this.selectedCell);
+        
+        // Don't highlight the selected cell itself
+        if (row === selectedRow && col === selectedCol) return false;
+        
+        // Check if in same row or column
+        if (row === selectedRow || col === selectedCol) return true;
+        
+        // Check if in same 3x3 box
+        const boxRow = Math.floor(selectedRow / 3);
+        const boxCol = Math.floor(selectedCol / 3);
+        const cellBoxRow = Math.floor(row / 3);
+        const cellBoxCol = Math.floor(col / 3);
+        
+        return boxRow === cellBoxRow && boxCol === cellBoxCol;
+    },
+
+    /**
+     * Get preferences helper
+     */
+    getPreferences() {
+        const stored = localStorage.getItem('sudoku-preferences');
+        const defaults = { showTimer: true, autoCheckErrors: true, highlightRelated: true };
+        if (stored) {
+            try {
+                return { ...defaults, ...JSON.parse(stored) };
+            } catch (e) {
+                return defaults;
+            }
+        }
+        return defaults;
+    },
+
+    /**
      * Main draw function
      */
     draw() {
@@ -415,6 +460,9 @@ const Grid = {
         // Check if in hint mode
         const isHintMode = typeof Play !== 'undefined' && Play.isHintMode;
         
+        // Check if cell is related to selected cell (same row, col, or box)
+        const isRelated = this.isCellRelated(row, col);
+        
         // Determine cell background
         let bgColor = this.colors.cellBg;
         if (isHintMode && isEmpty) {
@@ -424,6 +472,9 @@ const Grid = {
             bgColor = this.colors.cellInvalid;
         } else if (isSelected) {
             bgColor = this.colors.cellSelected;
+        } else if (isRelated) {
+            // Highlight related cells if preference is enabled
+            bgColor = this.colors.cellHover;
         } else if (isLocked) {
             bgColor = this.colors.cellLocked;
         } else if (value !== 0) {
@@ -787,12 +838,16 @@ const Grid = {
             const updates = {
                 currentGrid: this.currentGrid,
                 notes: this.cellNotes,
-                status: status
+                status: status,
+                lastPlayed: new Date().toISOString()
             };
             
             // Include timer elapsed time if Play module has it
             if (typeof Play !== 'undefined' && Play.elapsedTime !== undefined) {
                 updates.timeElapsed = Play.elapsedTime;
+                console.log('Autosaving with timeElapsed:', Play.elapsedTime);
+            } else {
+                console.log('Play.elapsedTime not available during autosave');
             }
             
             await Storage.updatePuzzle(this.currentPuzzleId, updates);

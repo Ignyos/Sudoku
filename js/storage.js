@@ -204,7 +204,7 @@ const Storage = {
                     currentGrid: Utils.copyGrid(originalGrid),
                     notes: Array(81).fill(0).map(() => Array(10).fill(false)),
                     status: 'in-progress',
-                    timeSpent: 0
+                    timeElapsed: 0
                 };
 
                 const id = await this.savePuzzle(puzzleData);

@@ -149,6 +149,7 @@ const Play = {
         // Start timer if puzzle is not completed and we're playing
         if (!this.isPuzzleCompleted && puzzle.difficulty) {
             const savedTime = puzzle.timeElapsed || 0;
+            console.log('Loading puzzle with timeElapsed:', puzzle.timeElapsed, 'Starting timer with:', savedTime);
             this.startTimer(savedTime);
         }
         

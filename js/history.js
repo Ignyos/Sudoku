@@ -115,7 +115,6 @@ const History = {
     renderHistoryItem(puzzle) {
         const date = new Date(puzzle.dateCreated || puzzle.dateModified);
         const startedDate = this.formatDate(date);
-        const difficulty = puzzle.difficulty || 'Manual Entry';
         const status = puzzle.isCompleted ? 'Completed' : 'In Progress';
         const statusClass = puzzle.isCompleted ? 'completed' : 'in-progress';
         
@@ -125,10 +124,22 @@ const History = {
             solvedMethod = puzzle.solvedBy === 'manual' ? ' ✓' : ' ⚡';
         }
         
+        // Determine title and difficulty badge
+        let titleHtml = '';
+        if (puzzle.difficulty) {
+            // Auto-generated puzzle
+            titleHtml = `<span class="difficulty-badge ${puzzle.difficulty}">${puzzle.difficulty}</span>`;
+        } else {
+            // Custom puzzle - estimate difficulty based on number of filled cells
+            const filledCells = puzzle.originalGrid.flat().filter(cell => cell !== 0).length;
+            const estimatedDifficulty = this.estimateDifficulty(filledCells);
+            titleHtml = `Custom Puzzle <span class="difficulty-badge ${estimatedDifficulty.level}">${estimatedDifficulty.label}</span>`;
+        }
+        
         return `
             <div class="history-item" data-puzzle-id="${puzzle.id}">
                 <div class="history-item-info">
-                    <div class="history-item-title">${difficulty}</div>
+                    <div class="history-item-title">${titleHtml}</div>
                     <div class="history-item-meta">
                         <span class="history-status ${statusClass}">${status}${solvedMethod}</span> 
                         ${startedDate}
@@ -139,6 +150,29 @@ const History = {
                 </div>
             </div>
         `;
+    },
+
+    /**
+     * Estimate difficulty based on number of filled cells
+     * Beginner: 46-50 clues, Easy: 40-45 clues, Medium: 32-39 clues, 
+     * Hard: 27-31 clues, Expert: 22-26 clues, Master: 18-21 clues
+     */
+    estimateDifficulty(filledCells) {
+        if (filledCells >= 46) {
+            return { level: 'beginner', label: 'Beginner' };
+        } else if (filledCells >= 40) {
+            return { level: 'easy', label: 'Easy' };
+        } else if (filledCells >= 32) {
+            return { level: 'medium', label: 'Medium' };
+        } else if (filledCells >= 27) {
+            return { level: 'hard', label: 'Hard' };
+        } else if (filledCells >= 22) {
+            return { level: 'expert', label: 'Expert' };
+        } else if (filledCells >= 18) {
+            return { level: 'master', label: 'Master' };
+        } else {
+            return { level: 'master', label: 'Master' };
+        }
     },
 
     /**

@@ -163,6 +163,8 @@ const Generator = {
      */
     getCluesCount(difficulty) {
         switch (difficulty) {
+            case 'beginner':
+                return 46 + Math.floor(Math.random() * 5); // 46-50
             case 'easy':
                 return 40 + Math.floor(Math.random() * 5); // 40-44
             case 'medium':
@@ -171,6 +173,8 @@ const Generator = {
                 return 28 + Math.floor(Math.random() * 4); // 28-31
             case 'expert':
                 return 22 + Math.floor(Math.random() * 5); // 22-26
+            case 'master':
+                return 18 + Math.floor(Math.random() * 4); // 18-21
             default:
                 return 35;
         }

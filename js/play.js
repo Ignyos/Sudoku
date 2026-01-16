@@ -13,6 +13,8 @@ const Play = {
     startTime: null,
     elapsedTime: 0, // in seconds
     timerInterval: null,
+    isPaused: false,
+    pausedTime: 0,
 
     /**
      * Initialize the play page
@@ -39,6 +41,14 @@ const Play = {
             
             // Setup UI controls
             this.setupControls();
+            
+            // Setup beforeunload to save timer state
+            window.addEventListener('beforeunload', () => {
+                this.saveTimerState();
+            });
+            
+            // Setup auto-resume on interaction
+            this.setupAutoResume();
             
             // Load puzzle based on mode
             await this.loadPuzzle();
@@ -252,6 +262,12 @@ const Play = {
                 this.showHelpModal();
             }
         });
+        
+        // Pause/Play timer button
+        const pauseTimerBtn = document.getElementById('pauseTimerBtn');
+        if (pauseTimerBtn) {
+            pauseTimerBtn.addEventListener('click', () => this.togglePause());
+        }
     },
 
     /**
@@ -536,7 +552,7 @@ const Play = {
             gridWrapper.classList.add('hint-mode');
         }
         
-        Utils.showMessage('Select a cell to reveal its answer', 'info', 0);
+        Utils.showMessage('Select a cell to reveal its answer', 'info', 2000);
     },
 
     /**
@@ -804,8 +820,13 @@ const Play = {
         const prefs = this.getPreferences();
         if (!prefs.showTimer) return;
         
+        console.log('startTimer called with savedElapsed:', savedElapsed);
+        
         this.elapsedTime = savedElapsed;
         this.startTime = Date.now() - (savedElapsed * 1000);
+        this.isPaused = false;
+        
+        console.log('Timer initialized:', { elapsedTime: this.elapsedTime, startTime: this.startTime });
         
         // Show timer element
         const timerEl = document.getElementById('timer');
@@ -814,10 +835,23 @@ const Play = {
             this.updateTimerDisplay();
         }
         
+        // Show pause button if preference is enabled
+        const pauseBtn = document.getElementById('pauseTimerBtn');
+        if (pauseBtn && prefs.showPauseButton) {
+            pauseBtn.style.display = 'inline-block';
+            pauseBtn.textContent = '\u23f8'; // Pause symbol
+            pauseBtn.title = 'Pause Timer';
+        }
+        
         // Update every second
         this.timerInterval = setInterval(() => {
-            this.elapsedTime = Math.floor((Date.now() - this.startTime) / 1000);
-            this.updateTimerDisplay();
+            if (!this.isPaused) {
+                this.elapsedTime = Math.floor((Date.now() - this.startTime) / 1000);
+                this.updateTimerDisplay();
+                
+                // Save timer to database every second
+                Grid.autoSave();
+            }
         }, 1000);
     },
 
@@ -848,7 +882,7 @@ const Play = {
      */
     getPreferences() {
         const stored = localStorage.getItem('sudoku-preferences');
-        const defaults = { showTimer: true, autoCheckErrors: true, highlightRelated: true };
+        const defaults = { showTimer: true, autoCheckErrors: true, highlightRelated: true, showPauseButton: true };
         if (stored) {
             try {
                 return { ...defaults, ...JSON.parse(stored) };
@@ -857,6 +891,30 @@ const Play = {
             }
         }
         return defaults;
+    },
+
+    /**
+     * Toggle timer pause state
+     */
+    togglePause() {
+        const pauseBtn = document.getElementById('pauseTimerBtn');
+        if (!pauseBtn) return;
+        
+        if (this.isPaused) {
+            // Resume
+            this.isPaused = false;
+            // Adjust startTime to account for paused duration
+            const pausedDuration = Date.now() - this.pausedTime;
+            this.startTime += pausedDuration;
+            pauseBtn.textContent = '\u23f8'; // Pause symbol
+            pauseBtn.title = 'Pause Timer';
+        } else {
+            // Pause
+            this.isPaused = true;
+            this.pausedTime = Date.now();
+            pauseBtn.textContent = '\u25b6'; // Play symbol
+            pauseBtn.title = 'Resume Timer';
+        }
     },
 
     /**
@@ -876,6 +934,68 @@ const Play = {
         const modal = document.getElementById('helpModal');
         if (modal) {
             modal.style.display = 'none';
+        }
+    },
+
+    /**
+     * Setup auto-resume timer on user interaction
+     */
+    setupAutoResume() {
+        const resumeIfPaused = () => {
+            if (this.isPaused && !this.isPuzzleCompleted) {
+                this.togglePause();
+            }
+        };
+        
+        // Resume on keyboard input
+        document.addEventListener('keydown', (e) => {
+            // Don't resume on ? key (help modal)
+            if (e.key === '?') return;
+            resumeIfPaused();
+        });
+        
+        // Resume on canvas click (game interaction)
+        const canvas = document.getElementById('sudokuCanvas');
+        if (canvas) {
+            canvas.addEventListener('click', resumeIfPaused);
+        }
+        
+        // Resume on number button clicks
+        const numberButtons = document.querySelectorAll('.number-btn');
+        numberButtons.forEach(btn => {
+            btn.addEventListener('click', resumeIfPaused);
+        });
+        
+        // Resume on control button clicks
+        const controlButtons = [
+            'inputModeBtn', 'notesModeBtn', 'getHintBtn', 
+            'undoBtn', 'redoBtn', 'clearCellBtn',
+            'zoomInBtn', 'zoomOutBtn', 'zoomResetBtn'
+        ];
+        
+        controlButtons.forEach(id => {
+            const btn = document.getElementById(id);
+            if (btn) {
+                btn.addEventListener('click', resumeIfPaused);
+            }
+        });
+    },
+
+    /**
+     * Save timer state before navigating away
+     */
+    saveTimerState() {
+        if (this.currentPuzzleId && this.elapsedTime > 0) {
+            // Use navigator.sendBeacon for reliable save on page unload
+            const updates = {
+                timeElapsed: this.elapsedTime,
+                lastPlayed: new Date().toISOString()
+            };
+            console.log('saveTimerState - saving:', updates);
+            
+            // For beforeunload, we need synchronous storage
+            // Since IndexedDB is async, we'll trigger autosave immediately
+            Grid.autoSave();
         }
     }
 };

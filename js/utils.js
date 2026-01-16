@@ -7,7 +7,7 @@ const Utils = {
      * Display a status message to the user
      * @param {string} message - The message to display
      * @param {string} type - Message type: 'success', 'error', 'warning', 'info'
-     * @param {number} duration - Duration in ms (0 = permanent)
+     * @param {number} duration - Duration in ms (0 = permanent, capped at 2000ms)
      */
     showMessage(message, type = 'info', duration = 3000) {
         const statusElement = document.getElementById('statusMessage');
@@ -16,20 +16,31 @@ const Utils = {
         statusElement.textContent = message;
         statusElement.className = `status-message ${type}`;
         
+        // Make message clickable to dismiss
+        const dismissHandler = () => {
+            this.clearMessage();
+            statusElement.removeEventListener('click', dismissHandler);
+        };
+        statusElement.addEventListener('click', dismissHandler);
+        statusElement.style.cursor = 'pointer';
+        
         // Trigger animation by adding 'show' class after a brief delay
         setTimeout(() => {
             statusElement.classList.add('show');
         }, 10);
 
         if (duration > 0) {
+            // Cap duration at 2 seconds
+            const cappedDuration = Math.min(duration, 2000);
             setTimeout(() => {
                 statusElement.classList.remove('show');
+                statusElement.removeEventListener('click', dismissHandler);
                 // Clear message after animation completes
                 setTimeout(() => {
                     statusElement.textContent = '';
                     statusElement.className = 'status-message';
                 }, 400); // Match CSS transition duration
-            }, duration);
+            }, cappedDuration);
         }
     },
 

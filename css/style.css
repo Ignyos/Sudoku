@@ -667,6 +667,11 @@ kbd {
     color: var(--primary-color);
 }
 
+#pauseTimerBtn {
+    font-size: 1.5rem;
+    line-height: 2rem;
+}
+
 .game-info {
     display: flex;
     align-items: center;
@@ -1095,10 +1100,12 @@ kbd {
     box-shadow: var(--shadow-lg);
     transition: top 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
     pointer-events: none;
+    cursor: pointer;
 }
 
 .status-message.show {
     top: 1.5rem;
+    pointer-events: auto;
 }
 
 .status-message.success {
@@ -1205,7 +1212,7 @@ kbd {
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: var(--border-color);
+    background-color: #cbd5e1;
     transition: 0.3s;
     border-radius: 34px;
 }
@@ -1228,6 +1235,11 @@ kbd {
 
 .toggle-switch input:checked + .toggle-slider:before {
     transform: translateX(24px);
+}
+
+.toggle-switch input:disabled + .toggle-slider {
+    opacity: 0.5;
+    cursor: not-allowed;
 }
 
 /* ===========================

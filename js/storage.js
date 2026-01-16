@@ -101,7 +101,13 @@ const Storage = {
             const objectStore = transaction.objectStore(this.storeName);
             const request = objectStore.get(id);
 
-            request.onsuccess = () => resolve(request.result || null);
+            request.onsuccess = () => {
+                const puzzle = request.result || null;
+                if (puzzle) {
+                    console.log('getPuzzle:', { id, timeElapsed: puzzle.timeElapsed, difficulty: puzzle.difficulty });
+                }
+                resolve(puzzle);
+            };
             request.onerror = () => reject(request.error);
         });
     },
@@ -231,8 +237,12 @@ const Storage = {
             throw new Error('Puzzle not found');
         }
 
+        console.log('updatePuzzle - before merge:', { id, currentTimeElapsed: puzzle.timeElapsed, updatesTimeElapsed: updates.timeElapsed });
+        
         // Merge updates
         Object.assign(puzzle, updates);
+        
+        console.log('updatePuzzle - after merge:', { id, timeElapsed: puzzle.timeElapsed });
 
         await this.savePuzzle(puzzle);
     },

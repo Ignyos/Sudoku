@@ -6,7 +6,8 @@ const Settings = {
     defaultPreferences: {
         showTimer: true,
         autoCheckErrors: true,
-        highlightRelated: true
+        highlightRelated: true,
+        showPauseButton: true
     },
 
     /**
@@ -35,8 +36,21 @@ const Settings = {
      */
     setupEventListeners() {
         // Settings toggles
-        document.getElementById('showTimer').addEventListener('change', (e) => {
+        const showTimerToggle = document.getElementById('showTimer');
+        const showPauseButtonToggle = document.getElementById('showPauseButton');
+        
+        showTimerToggle.addEventListener('change', (e) => {
             this.savePreference('showTimer', e.target.checked);
+            // Disable pause button toggle if timer is disabled
+            showPauseButtonToggle.disabled = !e.target.checked;
+            if (!e.target.checked) {
+                showPauseButtonToggle.checked = false;
+                this.savePreference('showPauseButton', false);
+            }
+        });
+
+        showPauseButtonToggle.addEventListener('change', (e) => {
+            this.savePreference('showPauseButton', e.target.checked);
         });
 
         document.getElementById('autoCheckErrors').addEventListener('change', (e) => {
@@ -69,8 +83,12 @@ const Settings = {
         const prefs = this.getPreferences();
         
         document.getElementById('showTimer').checked = prefs.showTimer;
+        document.getElementById('showPauseButton').checked = prefs.showPauseButton;
         document.getElementById('autoCheckErrors').checked = prefs.autoCheckErrors;
         document.getElementById('highlightRelated').checked = prefs.highlightRelated;
+        
+        // Disable pause button toggle if timer is disabled
+        document.getElementById('showPauseButton').disabled = !prefs.showTimer;
     },
 
     /**

@@ -142,13 +142,20 @@ const History = {
     },
 
     /**
-     * Format date as "Started YYYY MM DD"
+     * Format date as "Jan 5, 2026 3:45 PM"
      */
     formatDate(date) {
+        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        const month = months[date.getMonth()];
+        const day = date.getDate();
         const year = date.getFullYear();
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const day = String(date.getDate()).padStart(2, '0');
-        return `Started ${year} ${month} ${day}`;
+        
+        let hours = date.getHours();
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        const ampm = hours >= 12 ? 'PM' : 'AM';
+        hours = hours % 12 || 12; // Convert to 12-hour format
+        
+        return `${month} ${day}, ${year} ${hours}:${minutes} ${ampm}`;
     },
 
     /**

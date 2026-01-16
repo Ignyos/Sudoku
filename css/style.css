@@ -65,7 +65,7 @@ body {
 .container {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 2rem;
+    padding: 2rem 2rem 1rem 2rem;
     width: 100%;
     flex: 1;
     display: flex;
@@ -1342,10 +1342,10 @@ kbd {
    Footer
    =========================== */
 .site-footer {
-    padding: 2rem;
+    padding: 1rem 2rem;
+    padding-top: none;
     color: var(--text-secondary);
     font-size: 0.875rem;
-    margin-top: auto;
     width: 100%;
 }
 

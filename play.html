@@ -11,6 +11,11 @@
 <body>
     <div class="container">
         <main>
+            <!-- Hidden input for mobile keyboard -->
+            <input type="tel" id="mobileInput" pattern="[1-9]" inputmode="numeric" 
+                   style="position: absolute; opacity: 0; pointer-events: none; left: -9999px;" 
+                   maxlength="1" autocomplete="off" />
+            
             <!-- Game Area -->
             <div class="game-area">
                 <div class="game-header">

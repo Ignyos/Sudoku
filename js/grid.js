@@ -97,6 +97,9 @@ const Grid = {
         // Canvas click
         this.canvas.addEventListener('click', (e) => this.handleCanvasClick(e));
         
+        // Mobile input handler
+        this.setupMobileInput();
+        
         // Canvas mouse move for hover
         this.canvas.addEventListener('mousemove', (e) => this.handleMouseMove(e));
         
@@ -153,6 +156,14 @@ const Grid = {
                     Play.placeHintInCell(row, col);
                 }
                 return;
+            }
+            
+            // Focus mobile input on touch devices
+            if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
+                const mobileInput = document.getElementById('mobileInput');
+                if (mobileInput) {
+                    setTimeout(() => mobileInput.focus(), 100);
+                }
             }
             
             // If clicking on already selected cell in Notes mode
@@ -401,6 +412,49 @@ const Grid = {
         const cellBoxCol = Math.floor(col / 3);
         
         return boxRow === cellBoxRow && boxCol === cellBoxCol;
+    },
+
+    /**
+     * Setup mobile input handler
+     */
+    setupMobileInput() {
+        const mobileInput = document.getElementById('mobileInput');
+        if (!mobileInput) return;
+        
+        mobileInput.addEventListener('input', (e) => {
+            if (this.selectedCell === null) {
+                e.target.value = '';
+                return;
+            }
+            
+            const value = parseInt(e.target.value);
+            const { row, col } = Utils.getRowCol(this.selectedCell);
+            
+            if (value >= 1 && value <= 9) {
+                if (this.isNotesMode) {
+                    this.toggleNote(this.selectedCell, value);
+                } else {
+                    this.setCellValue(row, col, value);
+                }
+            }
+            
+            e.target.value = ''; // Clear for next input
+        });
+        
+        // Handle backspace/delete on mobile
+        mobileInput.addEventListener('keydown', (e) => {
+            if ((e.key === 'Backspace' || e.key === 'Delete') && this.selectedCell !== null) {
+                const { row, col } = Utils.getRowCol(this.selectedCell);
+                if (this.isNotesMode) {
+                    this.clearCellNotes(this.selectedCell);
+                    this.scheduleAutoSave();
+                    this.draw();
+                } else {
+                    this.setCellValue(row, col, 0);
+                    this.clearCellNotes(this.selectedCell);
+                }
+            }
+        });
     },
 
     /**

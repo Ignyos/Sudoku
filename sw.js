@@ -8,27 +8,27 @@ const RUNTIME_CACHE = 'sudoku-runtime';
 
 // Assets to cache on install
 const STATIC_ASSETS = [
-  '/Sudoku/',
-  '/Sudoku/index.html',
-  '/Sudoku/play.html',
-  '/Sudoku/settings.html',
-  '/Sudoku/stats.html',
-  '/Sudoku/history.html',
-  '/Sudoku/css/style.css',
-  '/Sudoku/css/responsive.css',
-  '/Sudoku/js/utils.js',
-  '/Sudoku/js/validator.js',
-  '/Sudoku/js/solver.js',
-  '/Sudoku/js/generator.js',
-  '/Sudoku/js/storage.js',
-  '/Sudoku/js/grid.js',
-  '/Sudoku/js/play.js',
-  '/Sudoku/js/menu.js',
-  '/Sudoku/js/settings.js',
-  '/Sudoku/js/stats.js',
-  '/Sudoku/js/history.js',
-  '/Sudoku/js/nav.js',
-  '/Sudoku/manifest.json'
+  '/',
+  '/index.html',
+  '/play.html',
+  '/settings.html',
+  '/stats.html',
+  '/history.html',
+  '/css/style.css',
+  '/css/responsive.css',
+  '/js/utils.js',
+  '/js/validator.js',
+  '/js/solver.js',
+  '/js/generator.js',
+  '/js/storage.js',
+  '/js/grid.js',
+  '/js/play.js',
+  '/js/menu.js',
+  '/js/settings.js',
+  '/js/stats.js',
+  '/js/history.js',
+  '/js/nav.js',
+  '/manifest.json'
 ];
 
 // Install event - cache static assets
@@ -109,7 +109,7 @@ self.addEventListener('fetch', (event) => {
         }).catch(() => {
           // If both cache and network fail, show offline page
           if (request.destination === 'document') {
-            return caches.match('/Sudoku/index.html');
+            return caches.match('/index.html');
           }
         });
       })

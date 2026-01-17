@@ -14,6 +14,13 @@ const Menu = {
             // Set up event listeners
             this.attachEventListeners();
             
+            // Check if we should auto-open the new game modal
+            if (window.location.hash === '#new-puzzle') {
+                this.showNewGameModal();
+                // Clear the hash without reloading
+                history.replaceState(null, null, ' ');
+            }
+            
             console.log('Menu initialized');
         } catch (error) {
             console.error('Failed to initialize menu:', error);

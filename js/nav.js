@@ -22,7 +22,7 @@
     const menuItems = [
         { href: 'index.html', label: 'Home' },
         { href: 'index.html#new-puzzle', label: 'New Puzzle' },
-        { href: 'play.html?mode=custom', label: 'Enter Puzzle' },
+        { href: 'play.html?mode=entry', label: 'Enter Puzzle' },
         { href: 'history.html', label: 'History' },
         { href: 'settings.html', label: 'Settings' },
         { href: 'stats.html', label: 'Statistics' }
@@ -74,9 +74,17 @@
     
     // Close menu when clicking a nav link
     navMenu.querySelectorAll('.nav-link').forEach(link => {
-        link.addEventListener('click', () => {
+        link.addEventListener('click', (e) => {
             hamburgerBtn.classList.remove('active');
             navMenu.classList.remove('show');
+            
+            // Special handling for "New Puzzle" when already on index.html
+            if (link.textContent === 'New Puzzle' && currentPage === 'index.html') {
+                e.preventDefault();
+                if (typeof Menu !== 'undefined' && Menu.showNewGameModal) {
+                    Menu.showNewGameModal();
+                }
+            }
         });
     });
 })();

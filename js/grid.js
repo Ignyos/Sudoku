@@ -133,6 +133,32 @@ const Grid = {
         
         // Window resize
         window.addEventListener('resize', () => this.handleResize());
+        
+        // Reset to Original modal buttons
+        const cancelResetBtn = document.getElementById('cancelResetBtn');
+        const confirmResetBtn = document.getElementById('confirmResetBtn');
+        if (cancelResetBtn) {
+            cancelResetBtn.addEventListener('click', () => {
+                const modal = document.getElementById('resetToOriginalModal');
+                if (modal) modal.style.display = 'none';
+            });
+        }
+        if (confirmResetBtn) {
+            confirmResetBtn.addEventListener('click', () => this.confirmResetToOriginal());
+        }
+        
+        // Clear Progress modal buttons
+        const cancelClearProgressBtn = document.getElementById('cancelClearProgressBtn');
+        const confirmClearProgressBtn = document.getElementById('confirmClearProgressBtn');
+        if (cancelClearProgressBtn) {
+            cancelClearProgressBtn.addEventListener('click', () => {
+                const modal = document.getElementById('clearProgressModal');
+                if (modal) modal.style.display = 'none';
+            });
+        }
+        if (confirmClearProgressBtn) {
+            confirmClearProgressBtn.addEventListener('click', () => this.confirmClearProgress());
+        }
     },
 
     /**
@@ -817,26 +843,54 @@ const Grid = {
      * Reset to original
      */
     resetToOriginal() {
-        if (confirm('Reset to original puzzle? This will clear all your inputs.')) {
-            this.currentGrid = Utils.copyGrid(this.originalGrid);
-            this.cellNotes = Array(81).fill(0).map(() => Array(10).fill(false));
-            this.draw();
-            this.scheduleAutoSave();
-            Utils.showMessage('Puzzle reset to original state', 'info');
+        const modal = document.getElementById('resetToOriginalModal');
+        if (modal) {
+            modal.style.display = 'flex';
         }
+    },
+
+    /**
+     * Confirm and execute reset to original
+     */
+    confirmResetToOriginal() {
+        this.currentGrid = Utils.copyGrid(this.originalGrid);
+        this.cellNotes = Array(81).fill(0).map(() => Array(10).fill(false));
+        this.draw();
+        this.scheduleAutoSave();
+        
+        const modal = document.getElementById('resetToOriginalModal');
+        if (modal) {
+            modal.style.display = 'none';
+        }
+        
+        Utils.showMessage('Puzzle reset to original state', 'info');
     },
 
     /**
      * Clear progress (reset current to original state)
      */
     clearProgress() {
-        if (confirm('Clear your progress? Original puzzle will remain.')) {
-            this.currentGrid = Utils.copyGrid(this.originalGrid);
-            this.cellNotes = Array(81).fill(0).map(() => Array(10).fill(false));
-            this.draw();
-            this.scheduleAutoSave();
-            Utils.showMessage('Progress cleared', 'info');
+        const modal = document.getElementById('clearProgressModal');
+        if (modal) {
+            modal.style.display = 'flex';
         }
+    },
+
+    /**
+     * Confirm and execute clear progress
+     */
+    confirmClearProgress() {
+        this.currentGrid = Utils.copyGrid(this.originalGrid);
+        this.cellNotes = Array(81).fill(0).map(() => Array(10).fill(false));
+        this.draw();
+        this.scheduleAutoSave();
+        
+        const modal = document.getElementById('clearProgressModal');
+        if (modal) {
+            modal.style.display = 'none';
+        }
+        
+        Utils.showMessage('Progress cleared', 'info');
     },
 
     /**

@@ -214,6 +214,18 @@ const Play = {
             confirmEditBtn.addEventListener('click', () => this.confirmUnlockPuzzle());
         }
 
+        // Clear Grid modal buttons
+        const cancelClearGridBtn = document.getElementById('cancelClearGridBtn');
+        const confirmClearGridBtn = document.getElementById('confirmClearGridBtn');
+        
+        if (cancelClearGridBtn) {
+            cancelClearGridBtn.addEventListener('click', () => this.closeClearGridModal());
+        }
+        
+        if (confirmClearGridBtn) {
+            confirmClearGridBtn.addEventListener('click', () => this.confirmClearGrid());
+        }
+
         // Solve Puzzle modal buttons
         const cancelSolveBtn = document.getElementById('cancelSolveBtn');
         const confirmSolveBtn = document.getElementById('confirmSolveBtn');
@@ -754,24 +766,39 @@ const Play = {
      * Clear the grid in entry mode
      */
     clearGrid() {
-        if (confirm('Clear the entire grid? This cannot be undone.')) {
-            // Create empty 9x9 grids
-            const emptyGrid = Array(9).fill(0).map(() => Array(9).fill(0));
-            const emptyNotes = Array(81).fill(null).map(() => Array(9).fill(false));
-            const emptyLocked = Array(81).fill(false);
-            
-            // Reload empty grid
-            Grid.loadPuzzleData({
-                id: null,
-                originalGrid: emptyGrid,
-                currentGrid: emptyGrid,
-                notes: emptyNotes,
-                locked: emptyLocked,
-                isEntry: true
-            });
-            
-            Utils.showMessage('Grid cleared', 'info', 2000);
-        }
+        const modal = document.getElementById('clearGridModal');
+        modal.style.display = 'flex';
+    },
+
+    /**
+     * Close clear grid modal
+     */
+    closeClearGridModal() {
+        const modal = document.getElementById('clearGridModal');
+        modal.style.display = 'none';
+    },
+
+    /**
+     * Confirm and execute grid clear
+     */
+    confirmClearGrid() {
+        // Create empty 9x9 grids
+        const emptyGrid = Array(9).fill(0).map(() => Array(9).fill(0));
+        const emptyNotes = Array(81).fill(null).map(() => Array(9).fill(false));
+        const emptyLocked = Array(81).fill(false);
+        
+        // Reload empty grid
+        Grid.loadPuzzleData({
+            id: null,
+            originalGrid: emptyGrid,
+            currentGrid: emptyGrid,
+            notes: emptyNotes,
+            locked: emptyLocked,
+            isEntry: true
+        });
+        
+        this.closeClearGridModal();
+        Utils.showMessage('Grid cleared', 'info', 2000);
     },
 
     /**

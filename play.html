@@ -104,6 +104,19 @@
         </div>
     </div>
 
+    <!-- Clear Grid Confirmation Modal -->
+    <div id="clearGridModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <h2>Clear Grid?</h2>
+            <p>This will clear the entire grid. This action cannot be undone.</p>
+            
+            <div class="modal-actions">
+                <button id="cancelClearGridBtn" class="modal-btn secondary">Cancel</button>
+                <button id="confirmClearGridBtn" class="modal-btn primary">Clear Grid</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Solve Puzzle Confirmation Modal -->
     <div id="solvePuzzleModal" class="modal" style="display: none;">
         <div class="modal-content">
@@ -113,6 +126,32 @@
             <div class="modal-actions">
                 <button id="cancelSolveBtn" class="modal-btn secondary">Cancel</button>
                 <button id="confirmSolveBtn" class="modal-btn primary">Solve</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reset to Original Confirmation Modal -->
+    <div id="resetToOriginalModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <h2>Reset to Original?</h2>
+            <p>This will clear all your inputs and reset the puzzle to its original state. This action cannot be undone.</p>
+            
+            <div class="modal-actions">
+                <button id="cancelResetBtn" class="modal-btn secondary">Cancel</button>
+                <button id="confirmResetBtn" class="modal-btn primary">Reset</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Clear Progress Confirmation Modal -->
+    <div id="clearProgressModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <h2>Clear Progress?</h2>
+            <p>This will clear your solving progress while keeping the original puzzle. This action cannot be undone.</p>
+            
+            <div class="modal-actions">
+                <button id="cancelClearProgressBtn" class="modal-btn secondary">Cancel</button>
+                <button id="confirmClearProgressBtn" class="modal-btn primary">Clear Progress</button>
             </div>
         </div>
     </div>

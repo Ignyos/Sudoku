@@ -33,6 +33,12 @@
 
     .grid-container {
         padding: 0.75rem;
+        max-width: 100%;
+        overflow: visible;
+    }
+
+    .grid-wrapper {
+        max-width: 100%;
     }
 
     .controls-bottom {
@@ -62,6 +68,10 @@
     main {
         padding: 1rem;
         border-radius: 8px;
+    }
+
+    .grid-container {
+        padding: 0.5rem;
     }
 
     .mode-btn {

@@ -33,6 +33,11 @@ const Grid = {
     lastMouseX: 0,
     lastMouseY: 0,
     
+    // Touch gesture properties
+    touchStartDistance: 0,
+    touchStartZoom: 1.0,
+    lastTapTime: 0,
+    
     // Colors from CSS variables
     colors: {
         cellBg: '#ffffff',
@@ -58,6 +63,9 @@ const Grid = {
         this.canvas = document.getElementById('sudokuCanvas');
         this.ctx = this.canvas.getContext('2d');
         
+        // Calculate responsive base size
+        this.calculateBaseSize();
+        
         // Set up high DPI canvas
         this.setupCanvas();
         
@@ -67,6 +75,37 @@ const Grid = {
         // Attach event listeners
         this.attachEventListeners();
         this.updateZoomDisplay();
+    },
+
+    /**
+     * Calculate responsive base size based on viewport
+     */
+    calculateBaseSize() {
+        const container = this.canvas.parentElement.parentElement; // grid-container
+        const containerWidth = container.offsetWidth;
+        const viewportWidth = window.innerWidth;
+        
+        // Account for container padding and border (1rem padding + 3px border on each side)
+        const containerPadding = 32 + 6; // roughly 2rem + 6px borders
+        const availableWidth = containerWidth - containerPadding;
+        
+        // Maximum base size
+        const maxSize = 600;
+        
+        // Calculate responsive size - use as much space as possible
+        if (viewportWidth < 768) {
+            // Mobile: use available space, max 500px
+            this.baseSize = Math.min(availableWidth, 500);
+        } else if (viewportWidth < 1024) {
+            // Tablet: use available space, max 550px
+            this.baseSize = Math.min(availableWidth, 550);
+        } else {
+            // Desktop: use full 600px or available space
+            this.baseSize = Math.min(availableWidth, maxSize);
+        }
+        
+        // Ensure minimum size
+        this.baseSize = Math.max(this.baseSize, 300);
     },
 
     /**
@@ -84,7 +123,8 @@ const Grid = {
         this.canvas.width = size * dpr;
         this.canvas.height = size * dpr;
         
-        // Scale context to match DPI
+        // Get context and scale for DPI
+        this.ctx = this.canvas.getContext('2d');
         this.ctx.scale(dpr, dpr);
         
         this.cellSize = size / 9;
@@ -133,6 +173,11 @@ const Grid = {
         
         // Window resize
         window.addEventListener('resize', () => this.handleResize());
+        
+        // Touch gestures for mobile
+        this.canvas.addEventListener('touchstart', (e) => this.handleTouchStart(e), { passive: false });
+        this.canvas.addEventListener('touchmove', (e) => this.handleTouchMove(e), { passive: false });
+        this.canvas.addEventListener('touchend', (e) => this.handleTouchEnd(e));
         
         // Reset to Original modal buttons
         const cancelResetBtn = document.getElementById('cancelResetBtn');
@@ -805,8 +850,89 @@ const Grid = {
      * Handle window resize
      */
     handleResize() {
+        const previousZoom = this.zoom;
+        
+        // Recalculate base size for new viewport
+        this.calculateBaseSize();
+        
+        // Maintain zoom level
+        this.zoom = previousZoom;
+        
+        // Recreate canvas with new dimensions
         this.setupCanvas();
         this.draw();
+        this.updateZoomDisplay();
+    },
+
+    /**
+     * Handle touch start for pinch-to-zoom and double-tap
+     */
+    handleTouchStart(e) {
+        if (e.touches.length === 2) {
+            // Two fingers - prepare for pinch zoom
+            e.preventDefault();
+            const touch1 = e.touches[0];
+            const touch2 = e.touches[1];
+            this.touchStartDistance = this.getTouchDistance(touch1, touch2);
+            this.touchStartZoom = this.zoom;
+        } else if (e.touches.length === 1) {
+            // Single finger - check for double tap
+            const now = Date.now();
+            const timeSinceLastTap = now - this.lastTapTime;
+            
+            if (timeSinceLastTap < 300 && timeSinceLastTap > 0) {
+                // Double tap detected - reset zoom
+                e.preventDefault();
+                this.resetZoom();
+            }
+            
+            this.lastTapTime = now;
+        }
+    },
+
+    /**
+     * Handle touch move for pinch-to-zoom
+     */
+    handleTouchMove(e) {
+        if (e.touches.length === 2) {
+            e.preventDefault();
+            const touch1 = e.touches[0];
+            const touch2 = e.touches[1];
+            const currentDistance = this.getTouchDistance(touch1, touch2);
+            
+            // Calculate zoom based on pinch distance change
+            const distanceRatio = currentDistance / this.touchStartDistance;
+            let newZoom = this.touchStartZoom * distanceRatio;
+            
+            // Clamp to min/max zoom
+            newZoom = Math.max(this.minZoom, Math.min(this.maxZoom, newZoom));
+            
+            if (newZoom !== this.zoom) {
+                this.zoom = newZoom;
+                this.setupCanvas();
+                this.draw();
+                this.updateZoomDisplay();
+            }
+        }
+    },
+
+    /**
+     * Handle touch end
+     */
+    handleTouchEnd(e) {
+        // Reset touch tracking
+        if (e.touches.length < 2) {
+            this.touchStartDistance = 0;
+        }
+    },
+
+    /**
+     * Get distance between two touch points
+     */
+    getTouchDistance(touch1, touch2) {
+        const dx = touch2.clientX - touch1.clientX;
+        const dy = touch2.clientY - touch1.clientY;
+        return Math.sqrt(dx * dx + dy * dy);
     },
 
     /**

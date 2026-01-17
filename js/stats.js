@@ -45,7 +45,7 @@ const Stats = {
         document.getElementById('averageTime').textContent = this.formatTime(avgTime);
         
         // By difficulty
-        const difficulties = ['easy', 'medium', 'hard', 'expert'];
+        const difficulties = ['beginner', 'easy', 'medium', 'hard', 'expert', 'master'];
         const difficultyContainer = document.getElementById('difficultyStats');
         difficultyContainer.innerHTML = '';
         

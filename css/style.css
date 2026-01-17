@@ -135,7 +135,7 @@ header h1 {
     background-image: 
         linear-gradient(to bottom, transparent 32%, var(--border-dark) 32%, var(--border-dark) 34%, transparent 34%),
         linear-gradient(to bottom, transparent 66%, var(--border-dark) 66%, var(--border-dark) 68%, transparent 68%);
-    opacity: 0.15;
+    opacity: 0.5;
     pointer-events: none;
     z-index: 0;
 }
